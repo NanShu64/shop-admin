@@ -1,5 +1,6 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
+import { login } from '@/api/manager'
 // do not use same name with ref
 const form = reactive({
     username: '',
@@ -10,15 +11,8 @@ const rules = {
         {
             required: true,
             message: '用户名不能为空',
-            trigger: 'blur'
+            trigger: 'blur'// trigger: 'blur' 失去焦点时
         },
-        // {
-        //     min: 3, 
-        //     max: 5,
-        //     message: '用户名长度必须是3到5个字符', 
-        //     trigger: 'blur'
-        //     // trigger: 'blur' 失去焦点时
-        // },
     ],
     password: [
         {
@@ -28,8 +22,22 @@ const rules = {
         },
     ]
 }
+const formRef = ref(null)
+
 const onSubmit = () => {
-    console.log('submit!')
+    formRef.value.validate((valid) => {
+        if (!valid) {
+            return false
+        }
+        
+        login(form.username,form.password)
+        .then(res=>{
+            console.log(res);
+        })
+        .catch(err=>{
+            console.log(err);
+        })
+    })
 }
 </script>
 <template>
@@ -47,7 +55,7 @@ const onSubmit = () => {
                 <span>账号密码登录</span>
                 <span class="line"></span>
             </div>
-            <el-form :model="form" class="w-[250px]">
+            <el-form ref="formRef" :rules="rules" :model="form" class="w-[250px]">
                 <el-form-item prop="username">
                     <el-input v-model="form.username" placeholder="请输入用户名">
                         <template #prefix>
@@ -58,7 +66,7 @@ const onSubmit = () => {
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="password">
-                    <el-input v-model="form.password" placeholder="请输入密码">
+                    <el-input type="password" v-model="form.password" placeholder="请输入密码"  show-password >
                         <template #prefix>
                             <el-icon>
                                 <Lock />
@@ -99,10 +107,10 @@ const onSubmit = () => {
 }
 
 .rigth>div {
-    @apply flex items-center justify-center my-5 text-gray-300 space-x-2
+    @apply flex items-center justify-center my-5 text-gray-300 space-x-2;
 }
 
 .rigth .line {
-    @apply h-[1px] w-16 bg-gray-200
+    @apply h-[1px] w-16 bg-gray-200;
 }
 </style>
