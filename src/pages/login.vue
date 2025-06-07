@@ -3,9 +3,9 @@ import { reactive, ref } from 'vue'
 import { login, getinfo } from '@/api/manager'
 import { ElNotification } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { useCookies } from '@vueuse/integrations/useCookies';
-
-
+import{
+setToken,
+}from '@/composables/auth'
 const router = useRouter()
 // do not use same name with ref
 const form = reactive({
@@ -47,8 +47,10 @@ const onSubmit = () => {
                     duration: 3000,
                 })
                 //存储用户Token
-                const cookie = useCookies()
-                cookie.set("admin-token", res.token)
+                // const cookie = useCookies()
+                // cookie.set("admin-token", res.token)
+                //封装简化
+                setToken(res.token)
                 //获取用户相关信息
                 getinfo().then(res1 => {
                     console.log(res1)

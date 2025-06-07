@@ -1,6 +1,6 @@
 import axios from "axios";
 import { ElNotification } from 'element-plus'
-import { useCookies } from '@vueuse/integrations/useCookies';
+import { useCookies } from '@/composables';
 const service = axios.create({
   baseURL: "/api"
 })
