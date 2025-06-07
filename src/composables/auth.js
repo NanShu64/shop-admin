@@ -7,7 +7,7 @@ export function getToken() {
     return cookie.get(TokenKey)
 }
 //设置token
-export function setToken() {
+export function setToken(token) {
     return cookie.set(TokenKey, token)
 }
 //清除token

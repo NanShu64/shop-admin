@@ -1,6 +1,6 @@
-import axios from "axios";
-import { ElNotification } from 'element-plus'
-import { useCookies } from '@/composables';
+import axios from "axios"
+import { getToken } from '@/composables/auth'
+import { toast } from '@/composables/util'
 const service = axios.create({
   baseURL: "/api"
 })
@@ -9,13 +9,13 @@ const service = axios.create({
 service.interceptors.request.use(function (config) {
   // 在发送请求之前做些什么
   //往header头自动添加token
-  const cookies = useCookies()
-  const token=cookies.get("admin-token")
-  if(token){
-    config.headers["token"]=token
+  const token =getToken()
+  if (token) {
+    config.headers["token"] = token
   }
   return config;
 }, function (error) {
+
   // 对请求错误做些什么
   return Promise.reject(error);
 });
@@ -28,13 +28,8 @@ service.interceptors.response.use(function (response) {
 }, function (error) {
   // 超出 2xx 范围的状态码都会触发该函数。
   // 对响应错误做点什么
-  //统一错误处理
-  ElNotification({
-    title: '错误',
-    message: error.response.data.msg || "请求失败",
-    type: 'error',
-    duration: 3000,
-  })
+  //统一错误处理 
+  toast(error.response.data.msg || "错误","请求失败", "error")
   return Promise.reject(error);
 });
 export default service 
