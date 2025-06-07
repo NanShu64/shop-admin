@@ -1,6 +1,11 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { login } from '@/api/manager'
+import { ElNotification } from 'element-plus'
+import { useRouter } from 'vue-router'
+import { useCookies } from '@vueuse/integrations/useCookies';
+
+const router = useRouter()
 // do not use same name with ref
 const form = reactive({
     username: '',
@@ -29,14 +34,24 @@ const onSubmit = () => {
         if (!valid) {
             return false
         }
-        
-        login(form.username,form.password)
-        .then(res=>{
-            console.log(res);
-        })
-        .catch(err=>{
-            console.log(err);
-        })
+
+        login(form.username, form.password)
+            .then(res => {
+                console.log(res);
+                //提示成功
+                ElNotification({
+                    title: '通知',
+                    message: '登录成功',
+                    type: 'success',
+                    duration: 3000,
+                })
+                //存储用户Token和用户相关信息
+                const cookie = useCookies()
+                cookie.set("admin-token", res.token)
+                //跳转到后台首页
+                router.push("/")
+            })
+            
     })
 }
 </script>
@@ -66,7 +81,7 @@ const onSubmit = () => {
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="password">
-                    <el-input type="password" v-model="form.password" placeholder="请输入密码"  show-password >
+                    <el-input type="password" v-model="form.password" placeholder="请输入密码" show-password>
                         <template #prefix>
                             <el-icon>
                                 <Lock />

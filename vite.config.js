@@ -11,6 +11,13 @@ export default defineConfig({
   },
   plugins: [vue(), WindiCSS(),],
   server: {
-
+    proxy: {
+      // 选项写法
+      '/api': {
+        target: 'http://ceshi13.dishait.cn',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      },
+    }
   }
 })
