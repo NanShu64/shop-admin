@@ -5,3 +5,8 @@ return axios.post("/admin/login",{
     password
 })
 }
+
+export function getinfo(){
+    return axios.post("/admin/getinfo",{
+    })
+    }

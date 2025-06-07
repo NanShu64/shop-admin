@@ -1,9 +1,10 @@
 <script setup>
 import { reactive, ref } from 'vue'
-import { login } from '@/api/manager'
+import { login, getinfo } from '@/api/manager'
 import { ElNotification } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { useCookies } from '@vueuse/integrations/useCookies';
+
 
 const router = useRouter()
 // do not use same name with ref
@@ -28,13 +29,13 @@ const rules = {
     ]
 }
 const formRef = ref(null)
-
+const loading = ref(false)
 const onSubmit = () => {
     formRef.value.validate((valid) => {
         if (!valid) {
             return false
         }
-
+        loading.value = true
         login(form.username, form.password)
             .then(res => {
                 console.log(res);
@@ -45,13 +46,19 @@ const onSubmit = () => {
                     type: 'success',
                     duration: 3000,
                 })
-                //存储用户Token和用户相关信息
+                //存储用户Token
                 const cookie = useCookies()
                 cookie.set("admin-token", res.token)
+                //获取用户相关信息
+                getinfo().then(res1 => {
+                    console.log(res1)
+                })
+
                 //跳转到后台首页
                 router.push("/")
+            }).finally(() => {
+                loading.value = false
             })
-            
     })
 }
 </script>
@@ -90,7 +97,8 @@ const onSubmit = () => {
                     </el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button round class="w-[250px] bg-green-500" type="primary" @click="onSubmit">登 录</el-button>
+                    <el-button round class="w-[250px] bg-green-500" type="primary" @click="onSubmit"
+                        :loading="loading">登 录</el-button>
                     <!-- <el-button round class="w-[250px] ">注 册</el-button> -->
                 </el-form-item>
             </el-form>

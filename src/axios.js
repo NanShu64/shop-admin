@@ -9,6 +9,11 @@ const service = axios.create({
 service.interceptors.request.use(function (config) {
   // 在发送请求之前做些什么
   //往header头自动添加token
+  const cookies = useCookies()
+  const token=cookies.get("admin-token")
+  if(token){
+    config.headers["token"]=token
+  }
   return config;
 }, function (error) {
   // 对请求错误做些什么
@@ -27,7 +32,7 @@ service.interceptors.response.use(function (response) {
   ElNotification({
     title: '错误',
     message: error.response.data.msg || "请求失败",
-    type: 'primary',
+    type: 'error',
     duration: 3000,
   })
   return Promise.reject(error);
