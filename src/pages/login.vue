@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, ref, onMounted, onBeforeMount } from 'vue'
 // reactive作用:创建一个响应式对象（通常是对象或数组）。ref作用：创建一个响应式引用（可以用于任何数据类型，包括基本类型）。onMounted 作用：注册一个回调函数，在组件挂载完成后执行（相当于 Vue 2 的 `mounted` 生命周期钩子）。onBeforeMount作用：注册一个回调函数，在组件挂载之前执行（相当于 Vue 2 的 `beforeMount` 生命周期钩子）。
-import { toast } from '@/composables/util'
+import { toast, } from '@/composables/util'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 
@@ -40,7 +40,7 @@ const onSubmit = () => {
         store.dispatch("login", form).then(res => {
             //提示成功
             toast("通知", "登录成功", "success")
-            //         //跳转到后台首页
+            //跳转到后台首页
             router.push("/")
         }).finally(() => {
             loading.value = false

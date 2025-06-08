@@ -1,6 +1,6 @@
 import { createStore } from 'vuex'
-import { login, getinfo } from '@/api/manager'
-import { setToken } from '@/composables/auth'
+import { login, getinfo} from '@/api/manager'
+import { setToken, removeToken } from '@/composables/auth'
 // 创建一个新的 store 实例
 const store = createStore({
     state() {
@@ -15,7 +15,8 @@ const store = createStore({
             state.user = use
         }
     },
-    actions: {// 登录 
+    actions: {
+        // 登录 
         // 从login抽离-存储用户Token
         login({ commit }, { username, password }) {
             //获取的同时结构出来
@@ -26,15 +27,6 @@ const store = createStore({
                 }).catch(err => reject(err))
             })
         },
-        //获取当前登录用户信息
-        getinfo({ commit }) {
-            return new Promise(() => {
-                getinfo.then(res => {
-                    commit("SET_USERINFO", res)
-                    resolve(res)
-                }).catch(err => rejection(err))
-            })
-        },
         // 获取当前登录用户信息
         getinfo({ commit }) {
             return new Promise((resolve, reject) => {
@@ -43,8 +35,14 @@ const store = createStore({
                     resolve(res)
                 }).catch(err => reject(err))
             })
+        },
+        // 退出登录
+        logout({commit}) {
+            // 移除cookie里的token
+            removeToken()
+            // 清除当前用户状态 vuex
+            commit("SET_USERINFO", {})
         }
-
     }
 })
 
