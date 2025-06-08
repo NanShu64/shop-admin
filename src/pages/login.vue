@@ -1,13 +1,12 @@
 <script setup>
-import { reactive, ref } from 'vue'
-import { login, getinfo } from '@/api/manager'
+import { reactive, ref, onMounted, onBeforeMount } from 'vue'
+// reactive作用:创建一个响应式对象（通常是对象或数组）。ref作用：创建一个响应式引用（可以用于任何数据类型，包括基本类型）。onMounted 作用：注册一个回调函数，在组件挂载完成后执行（相当于 Vue 2 的 `mounted` 生命周期钩子）。onBeforeMount作用：注册一个回调函数，在组件挂载之前执行（相当于 Vue 2 的 `beforeMount` 生命周期钩子）。
 import { toast } from '@/composables/util'
 import { useRouter } from 'vue-router'
-import{setToken}from '@/composables/auth'
 import { useStore } from 'vuex'
 
 
-const store=useStore()
+const store = useStore()
 const router = useRouter()
 // do not use same name with ref
 const form = reactive({
@@ -38,28 +37,31 @@ const onSubmit = () => {
             return false
         }
         loading.value = true
-        login(form.username, form.password)
-            .then(res => {
-                console.log(res);
-                //提示成功
-                toast("通知","登录成功","success")
-                //存储用户Token
-                // const cookie = useCookies()
-                // cookie.set("admin-token", res.token)
-                //封装简化
-                setToken(res.token)
-                //获取用户相关信息
-                getinfo().then(res1 => {
-                    store.commit("SET_USERINFO",res1)
-                    console.log(res1)
-                })
-                //跳转到后台首页
-                router.push("/")
-            }).finally(() => {
-                loading.value = false
-            })
+        store.dispatch("login", form).then(res => {
+            //提示成功
+            toast("通知", "登录成功", "success")
+            //         //跳转到后台首页
+            router.push("/")
+        }).finally(() => {
+            loading.value = false
+        })
     })
 }
+//监听回车事件
+function onKeyup(e) {
+    if(e.key == "Enter") onSubmit()
+}
+//添加键盘的监听
+onMounted(() => {
+    //页面加载完毕之后调用事件
+    document.addEventListener("keyup", onKeyup)
+})
+//移除键盘监听
+onBeforeMount(() => {
+    //页面卸载之前移除事件
+    document.removeEventListener("keyup", onKeyup)
+})
+
 </script>
 <template>
     <!-- 行提供 gutter 属性来指定列之间的间距，其默认值为0 -->
