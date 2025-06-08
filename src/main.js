@@ -5,6 +5,7 @@ import router from './router'
 import App from './App.vue'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue' //导入 ElementPlus 组件库中的所有图标
 import store from '@/store/index'
+import "@/permission"
 const app = createApp(App)
 app.use(router)
 app.use(ElementPlus)

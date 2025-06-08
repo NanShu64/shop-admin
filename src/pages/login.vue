@@ -50,6 +50,7 @@ const onSubmit = () => {
                 setToken(res.token)
                 //获取用户相关信息
                 getinfo().then(res1 => {
+                    store.commit("SET_USERINFO",res1)
                     console.log(res1)
                 })
                 //跳转到后台首页

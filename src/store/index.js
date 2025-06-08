@@ -10,7 +10,7 @@ const store = createStore({
     mutations: {
         //记录用户信息
         SET_USERINFO(state, use) {
-            state.user = user
+            state.user = use
         }
     }
 })
