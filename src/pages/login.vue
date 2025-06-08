@@ -1,9 +1,13 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { login, getinfo } from '@/api/manager'
-import { toast, } from '@/composables/util'
+import { toast } from '@/composables/util'
 import { useRouter } from 'vue-router'
-import{setToken,}from '@/composables/auth'
+import{setToken}from '@/composables/auth'
+import { useStore } from 'vuex'
+
+
+const store=useStore()
 const router = useRouter()
 // do not use same name with ref
 const form = reactive({
