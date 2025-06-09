@@ -31,7 +31,9 @@ router.beforeEach(async (to, from, next) => {
         //         console.log(res1)
         //     })
     }
-
+    //设置页面标题
+    let title = (to.meta.title ? to.meta.title : "") + "-后台管理"
+    document.title = title
     //确保 next 在任何给定的导航守卫中都被严格调用一次。
     next()
 })
