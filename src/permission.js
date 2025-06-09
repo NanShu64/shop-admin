@@ -1,12 +1,15 @@
 import router from "@/router"
 import { getToken } from "@/composables/auth";
-import { toast } from "@/composables/util";
+import { toast, showFullLoading, hideFullLoading } from "@/composables/util";
 import store from './store'
 // 全局前置守卫
 // const router = createRouter({})
 
-router.beforeEach(async(to, from, next) => {
+router.beforeEach(async (to, from, next) => {
     // async 是一个通过异步执行并隐式返回 Promise 作为结果的函数
+
+    //显示loading
+    showFullLoading()
     const token = getToken()
     //没有登录且去往非登录页，强制跳转登录页
     if (!token && to.path != "/login") {
@@ -23,12 +26,14 @@ router.beforeEach(async(to, from, next) => {
         //获取用户相关信息
         //异步操作
         await store.dispatch("getinfo")
-    //     getinfo().then(res1 => {
-    //         store.commit("SET_USERINFO", res1)
-    //         console.log(res1)
-    //     })
+        //     getinfo().then(res1 => {
+        //         store.commit("SET_USERINFO", res1)
+        //         console.log(res1)
+        //     })
     }
 
     //确保 next 在任何给定的导航守卫中都被严格调用一次。
     next()
 })
+//全局后置守卫
+router.afterEach((to, from) => hideFullLoading())
