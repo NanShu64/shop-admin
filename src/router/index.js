@@ -4,19 +4,26 @@ import Index from '@/pages/index.vue'
 import About from '@/pages/about.vue'
 import NotFound from '@/pages/404.vue'
 import Login from '@/pages/login.vue'
+import Admin from '@/layout/admin.vue'
 const routes = [
     {
         path: "/", // http://localhost:5173
-        component: Index,
-        meta: {
-            title: "后台首页"
-        }
+        component: Admin,
+        //子路由
+        children: [{
+            path: "/",
+            component: Index,
+            meta: {
+                title: "后台首页"
+            },
+        }]
+
     },
     {
         path: "/about", // http://localhost:5173/#/about
         component: About,
-        meta:{
-            title:"关于"
+        meta: {
+            title: "关于"
         }
     },
     {
