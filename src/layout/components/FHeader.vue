@@ -1,9 +1,11 @@
 <script setup>
-import { logout } from '@/api/manager'
+import { logout, updatepassword } from '@/api/manager'
 import { showModal, toast } from '@/composables/util'
 import { useRouter } from 'vue-router'
 import { useStore } from "vuex"
 import { useFullscreen } from '@vueuse/core'
+import { reactive, ref } from 'vue'
+
 
 const store = useStore()
 const router = useRouter()
@@ -14,6 +16,9 @@ const {
     // 切换全屏 toggle是enter, exit的合体
 } = useFullscreen()
 
+//修改密码
+//默认抽屉是关的
+const showDrawer = ref(false)
 
 const handleCommand = (c) => {
     switch (c) {
@@ -21,10 +26,61 @@ const handleCommand = (c) => {
             handleLogout()
             break;
         case "rePassword":
-            console.log("修改密码");
+            showDrawer.value = true
+            //将抽屉打开
             break;
     }
 }
+const form = reactive({
+    oldpassword: '',
+    password: '',
+    repassword: ''
+})
+const rules = {
+    oldpassword: [
+        {
+            required: true,
+            message: '旧密码不能为空',
+            trigger: 'blur'
+        },
+    ],
+    password: [
+        {
+            required: true,
+            message: '新密码不能为空',
+            trigger: 'blur'
+        },
+    ],
+    repassword: [
+        {
+            required: true,
+            message: '确认密码不能为空',
+            trigger: 'blur'
+        },
+    ]
+}
+const formRef = ref(null)
+const loading = ref(false)
+const onSubmit = () => {
+    formRef.value.validate((valid) => {
+        if (!valid) {
+            return false
+        }
+        loading.value = true
+        updatepassword(form).then(res => {
+            //提示修改密码成功
+            toast("通知", "修改密码成功，请重新登录", "success")
+            //移除cookie中的token清除当前用户状态->@/store/index.js
+            store.dispatch("logout")
+            //跳转到登录页
+            router.push("/login")
+
+        }).finally(() => {
+            loading.value = false
+        })
+    })
+}
+//退出登录
 function handleLogout() {
     showModal("是否要退出登录？").then(res => {
         logout()
@@ -64,8 +120,8 @@ const handleRefresh = () => location.reload()
             <!-- ml-auto 相当与margin-left:auto -->
             <el-tooltip effect="dark" content="全屏" placement="bottom-end">
                 <el-icon class="icon-btn" @click="toggle">
-                    <FullScreen v-if="!isFullscreen"/>
-                    <Aim v-else/>
+                    <FullScreen v-if="!isFullscreen" />
+                    <Aim v-else />
                 </el-icon>
             </el-tooltip>
             <el-dropdown class="dropdown" @command="handleCommand">
@@ -85,8 +141,28 @@ const handleRefresh = () => location.reload()
                 </template>
             </el-dropdown>
         </div>
-        <!-- {{ $store.state.user }} -->
     </div>
+    <el-drawer v-model="showDrawer" title="修改密码" size="45%" :close-on-click-modal="false">
+        <el-form ref="formRef" :rules="rules" :model="form" status-icon label-width="80px" size="small">
+            <el-form-item label="旧密码" prop="oldpassword">
+                <el-input v-model="form.oldpassword" placeholder="请输入旧密码" type="password" />
+            </el-form-item>
+            <el-form-item label="新密码" prop="password">
+                <el-input v-model="form.password" placeholder="请输入新密码" type="password" show-password />
+            </el-form-item>
+            <el-form-item label="确认新密码" prop="repassword">
+                <el-input v-model="form.repassword" placeholder="请确认新密码" type="password" show-password />
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="onSubmit" :loading="loading">
+                    提交
+                </el-button>
+                <!-- <el-button @click="cancel">
+                    取消
+                </el-button> -->
+            </el-form-item>
+        </el-form>
+    </el-drawer>
 </template>
 
 
