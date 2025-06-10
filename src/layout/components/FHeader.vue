@@ -1,25 +1,25 @@
 <script setup>
-import { logout, updatepassword } from '@/api/manager'
-import { showModal, toast } from '@/composables/util'
-import { useRouter } from 'vue-router'
-import { useStore } from "vuex"
 import { useFullscreen } from '@vueuse/core'
-import { reactive, ref } from 'vue'
 import FormDrawer from '@/components/FormDrawer.vue'
-
-const store = useStore()
-const router = useRouter()
+import { useRepassword, useLogout } from '@/composables/useManager'
 const {
     //是否全屏状态
     isFullscreen,
     toggle
     // 切换全屏 toggle是enter, exit的合体
 } = useFullscreen()
-
 //修改密码
-//默认抽屉是关的
-const formDrawerRef = ref(null)
-
+const {
+    formDrawerRef,
+    form,
+    rules,
+    formRef,
+    onSubmit,
+    openRePasswordForm } = useRepassword()
+//退出登录
+const {
+    handleLogout,
+} = useLogout()
 
 const handleCommand = (c) => {
     switch (c) {
@@ -28,74 +28,13 @@ const handleCommand = (c) => {
             break;
         case "rePassword":
             // showDrawer.value = true
-            formDrawerRef.value.open()
+            openRePasswordForm()
             //将抽屉打开
             break;
     }
 }
-const form = reactive({
-    oldpassword: '',
-    password: '',
-    repassword: ''
-})
-const rules = {
-    oldpassword: [
-        {
-            required: true,
-            message: '旧密码不能为空',
-            trigger: 'blur'
-        },
-    ],
-    password: [
-        {
-            required: true,
-            message: '新密码不能为空',
-            trigger: 'blur'
-        },
-    ],
-    repassword: [
-        {
-            required: true,
-            message: '确认密码不能为空',
-            trigger: 'blur'
-        },
-    ]
-}
-const formRef = ref(null)
 
-const OnSubmit = () => {
-    formRef.value.validate((valid) => {
-        if (!valid) {
-            return false
-        }
-        formDrawerRef.value.showLoading()
-        updatepassword(form).then(res => {
-            //提示修改密码成功
-            toast("通知", "修改密码成功，请重新登录", "success")
-            //移除cookie中的token清除当前用户状态->@/store/index.js
-            store.dispatch("logout")
-            //跳转到登录页
-            router.push("/login")
 
-        }).finally(() => {
-           formDrawerRef.value.hideLoading()
-        })
-    })
-}
-//退出登录
-function handleLogout() {
-    showModal("是否要退出登录？").then(res => {
-        logout()
-            .finally(() => {
-                //移除cookie中的token清除当前用户状态->@/store/index.js
-                store.dispatch("logout")
-                //跳转回登录页
-                router.push("/login")
-                //提示退出登录成功
-                toast("通知", "退出登录成功", "success")
-            })
-    })
-}
 //刷新
 const handleRefresh = () => location.reload()
 //全屏
@@ -144,12 +83,7 @@ const handleRefresh = () => location.reload()
             </el-dropdown>
         </div>
     </div>
-    <!-- <el-drawer v-model="showDrawer" title="修改密码" size="45%" :close-on-click-modal="false">
-        
-    </el-drawer> 
-    //已封装 
-    -->
-    <form-drawer ref="formDrawerRef" title="修改密码" destroyOnClose @submit="OnSubmit">
+    <form-drawer ref="formDrawerRef" title="修改密码" destroyOnClose @submit="onSubmit">
 
         <div style="height: 1000px;">
             <el-form ref="formRef" :rules="rules" :model="form" status-icon label-width="80px" size="small">
