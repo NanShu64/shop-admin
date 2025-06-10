@@ -8,17 +8,27 @@ const store = createStore({
             //用户信息
             user: {},
             //侧边宽度
-            asideWidth: "250px"
+            asideWidth: "250px",
+
+            menus: [],
+            ruleNames: []
         }
     },
     mutations: {
         //记录用户信息
-        SET_USERINFO(state, use) {
-            state.user = use
+        SET_USERINFO(state, user) {
+            state.user = user
         },
         //展开/缩起侧边
         handleAsideWidth(state) {
-            state.asideWidth = state.asideWidth == "250px"? "60px":"250px"
+            state.asideWidth = state.asideWidth == "250px" ? "64px" : "250px"
+        },
+        //
+        SET_MENUS(state, menus) {
+            state.menus = menus
+        },
+        SET_RULENAMES(state, ruleNames) {
+            state.ruleNames = ruleNames
         }
     },
     actions: {
@@ -29,6 +39,7 @@ const store = createStore({
             return new Promise((resolve, reject) => {
                 login(username, password).then(res => {
                     setToken(res.token)
+
                     resolve(res)
                 }).catch(err => reject(err))
             })
@@ -37,7 +48,9 @@ const store = createStore({
         getinfo({ commit }) {
             return new Promise((resolve, reject) => {
                 getinfo().then(res => {
-                    commit("SET_USERINFO", res)
+                    commit("SET_USERINFO",res)
+                    commit("SET_MENUS",res.menus)
+                    commit("SET_RULENAMES",res.ruleNames)
                     resolve(res)
                 }).catch(err => reject(err))
             })

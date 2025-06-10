@@ -6,6 +6,7 @@ import NotFound from '@/pages/404.vue'
 import Login from '@/pages/login.vue'
 import Admin from '@/layout/admin.vue'
 import GoodList from '@/pages/goods/list.vue'
+import CategoryList from '@/pages/category/list.vue'
 const routes = [
     {
         path: "/", // http://localhost:5173
@@ -25,13 +26,13 @@ const routes = [
                 title: "商品管理"
             },
         }],
-        // children: [{
-        //     path: "/",
-        //     component: Index,
-        //     meta: {
-        //         title: "后台首页"
-        //     },
-        // }],
+        children: [{
+            path: "/category/list",
+            component: CategoryList,
+            meta: {
+                title: "分类列表"
+            },
+        }],
         // children: [{
         //     path: "/",
         //     component: Index,

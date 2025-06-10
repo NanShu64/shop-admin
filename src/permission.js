@@ -4,7 +4,7 @@ import { toast, showFullLoading, hideFullLoading } from "@/composables/util";
 import store from './store'
 // 全局前置守卫
 // const router = createRouter({})
-
+// let hasGetInfo =false
 router.beforeEach(async (to, from, next) => {
     // async 是一个通过异步执行并隐式返回 Promise 作为结果的函数
 

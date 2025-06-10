@@ -1,41 +1,26 @@
 <script setup>
-import { useRouter } from 'vue-router';
+import { useRouter,useRoute } from 'vue-router';
 import { useStore } from "vuex"
-import { computed } from 'vue';
+import { computed,ref } from 'vue';
 const router = useRouter()
+const route = useRoute()
 const store = useStore()
-const asideMenus = [{
-  "name": "后台面板",
-  "icon": "help",
-  "child": [{
-    "name": "主控台",
-    "icon": "home-filled",
-    "frontpath": "/",
-  }]
-}
-  , {
-  "name": "商城管理",
-  "icon": "shopping-bag",
-  "child": [{
-    "name": "商品管理",
-    "icon": "shopping-cart-full",
-    "frontpath": "/goods/list",
-  }]
-}
-]
+
+const asideMenus = computed(() => store.state.menus)
 
 const handleSelect = (e) => {
   router.push(e)
 }
 //是否折叠
 const isCollapse = computed(() => !(store.state.asideWidth == '250px'))
-
+//默认选中,页面加载时默认激活菜单的 index ,route.path当前路由路径
+const defaultActive = ref(route.path)
 
 </script>
 <template>
   <div class="f-menu" :style="{ width:$store.state.asideWidth }">
-    <el-menu unique-opened :collapse="isCollapse" default-active="2" class="border-0" @select="handleSelect"
-      :collapse-transition="false">
+    <el-menu :default-active="defaultActive" unique-opened :collapse="isCollapse" default-active="2" class="border-0"
+      @select="handleSelect" :collapse-transition="false">
       <!-- unique-opened子菜单不会同时展开 -->
       <template v-for="(item,index) in asideMenus" :key="index">
         <el-sub-menu v-if="item.child && item.child.length>0" :index="item.name">
@@ -66,14 +51,18 @@ const isCollapse = computed(() => !(store.state.asideWidth == '250px'))
 
 <style scoped>
 .f-menu {
-  transition:all 0.2s ;
+  transition: all 0.2s;
   /* 动画0.2秒 */
   width: 250px;
   top: 64px;
   bottom: 0;
   left: 0;
   overflow-y: auto;
-  overflow-x:hidden;
+  overflow-x: hidden;
   @apply shadow-md fixed bg-light-50;
+}
+/* 去除滚动条 */
+.f-menu::-webkit-scrollbar{
+    width: 0px;
 }
 </style>
