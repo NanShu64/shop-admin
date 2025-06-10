@@ -1,18 +1,24 @@
 import { createStore } from 'vuex'
-import { login, getinfo} from '@/api/manager'
+import { login, getinfo } from '@/api/manager'
 import { setToken, removeToken } from '@/composables/auth'
 // 创建一个新的 store 实例
 const store = createStore({
     state() {
         return {
             //用户信息
-            user: {}
+            user: {},
+            //侧边宽度
+            asideWidth: "250px"
         }
     },
     mutations: {
         //记录用户信息
         SET_USERINFO(state, use) {
             state.user = use
+        },
+        //展开/缩起侧边
+        handleAsideWidth(state) {
+            state.asideWidth = state.asideWidth == "250px"? "60px":"250px"
         }
     },
     actions: {
@@ -37,7 +43,7 @@ const store = createStore({
             })
         },
         // 退出登录
-        logout({commit}) {
+        logout({ commit }) {
             // 移除cookie里的token
             removeToken()
             // 清除当前用户状态 vuex
