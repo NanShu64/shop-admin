@@ -13,10 +13,10 @@ import FTagList from '@/layout/components/FTagList.vue'
                 <f-menu />
             </el-aside>
             <el-main>
-                <f-tag-list />
-                <router-view v-slot="{Component}">
-                    <keep-alive :max="10"> 
-                        <!--  只允许缓存10个， 最久未访问的销毁-->
+                <f-tag-list />   
+                <router-view v-slot="{ Component }">
+                    <!-- keep-alive只允许缓存10个， 最久未访问的销毁 --> 
+                     <keep-alive :max="10">
                         <component :is="Component"></component>
                     </keep-alive>
                     </router-view>
