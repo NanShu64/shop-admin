@@ -1,76 +1,14 @@
 <script setup>
-import { ref } from 'vue'
-//onBeforeRouteUpdate添加一个导航守卫，不论当前位置何时被更新都会触发。
-import { useRoute, onBeforeRouteUpdate } from 'vue-router';
-import { useCookies } from '@vueuse/integrations/useCookies';
+import { useTabList } from '@/composables/useTabList'
 
+const {
+    activeTab,
+    tabList,
+    changeTab,
+    removeTab,
+    handleClose
+} = useTabList()
 
-
-
-const cookie = useCookies()
-const route = useRoute()
-
-
-const activeTab = ref(route.path)
-const tabList = ref([
-    {
-        title: '后台首页',
-        path: "/"
-    },
-])
-
-
-//添加标签导航的方法
-function addTab(tab) {
-    let noTab = tabList.value.findIndex(t => t.path == tab.path) == -1
-    if (noTab) {
-        tabList.value.push(tab)
-    }
-    cookie.set("tabList", tabList.value)
-}
-
-// 初始化标签导航列表
-function initTabList() {
-    //从cookie当中拿tabList
-    let tbs = cookie.get("tabList")
-    //如果有的话，赋值给tbs
-    if (tbs) {
-        tabList.value = tbs
-    }
-}
-//执行 
-initTabList()
-onBeforeRouteUpdate((to, from) => {
-    //点击标签，标签处于激活状态
-    activeTab.value = to.path
-    addTab({
-        title: to.meta.title,
-        path: to.path
-    })
-})
-const changeTab = (t) => {
-    //改变当前激活标签为‘t’
-    activeTab.value = t
-    router.push(t)
-}
-const removeTab = (targetName) => {
-    //点击关闭执行的方法
-    // const tabs = editableTabs.value
-    // let activeName = editableTabsValue.value
-    // if (activeName === targetName) {
-    //     tabs.forEach((tab, index) => {
-    //         if (tab.name === targetName) {
-    //             const nextTab = tabs[index + 1] || tabs[index - 1]
-    //             if (nextTab) {
-    //                 activeName = nextTab.name
-    //             }
-    //         }
-    //     })
-    // }
-
-    // editableTabsValue.value = activeName
-    // editableTabs.value = tabs.filter((tab) => tab.name !== targetName)
-}
 </script>
 <template>
     <div class="f-tag-list" :style="{ left:$store.state.asideWidth }">
@@ -82,7 +20,7 @@ const removeTab = (targetName) => {
         </el-tabs>
 
         <span class=" tag-btn">
-            <el-dropdown>
+            <el-dropdown @command="handleClose">
                 <span class="el-dropdown-link">
                     <el-icon>
                         <arrow-down />
@@ -90,11 +28,8 @@ const removeTab = (targetName) => {
                 </span>
                 <template #dropdown>
                     <el-dropdown-menu>
-                        <el-dropdown-item>Action 1</el-dropdown-item>
-                        <el-dropdown-item>Action 2</el-dropdown-item>
-                        <el-dropdown-item>Action 3</el-dropdown-item>
-                        <el-dropdown-item disabled>Action 4</el-dropdown-item>
-                        <el-dropdown-item divided>Action 5</el-dropdown-item>
+                        <el-dropdown-item command="clearOther">关闭其他</el-dropdown-item>
+                        <el-dropdown-item command="clearAll">全部关闭</el-dropdown-item>
                     </el-dropdown-menu>
                 </template>
             </el-dropdown>
