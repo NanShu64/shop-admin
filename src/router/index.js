@@ -7,66 +7,87 @@ import Login from '@/pages/login.vue'
 import Admin from '@/layout/admin.vue'
 import GoodList from '@/pages/goods/list.vue'
 import CategoryList from '@/pages/category/list.vue'
-const routes = [
-    {
-        path: "/", // http://localhost:5173
-        component: Admin,
-        //子路由
-        children: [{
-            path: "/",
-            component: Index,
-            meta: {
-                title: "后台首页"
-            },
-        }],
-        children: [{
-            path: "/goods/list",
-            component: GoodList,
-            meta: {
-                title: "商品管理"
-            },
-        }],
-        children: [{
-            path: "/category/list",
-            component: CategoryList,
-            meta: {
-                title: "分类列表"
-            },
-        }],
-        // children: [{
-        //     path: "/",
-        //     component: Index,
-        //     meta: {
-        //         title: "后台首页"
-        //     },
-        // }]
 
-    },
-    {
-        path: "/about", // http://localhost:5173/#/about
-        component: About,
-        meta: {
-            title: "关于"
-        }
-    },
-    {
-        path: '/:pathMatch(.*)*',
-        name: 'NotFound',
-        component: NotFound
-    },
-    {
-        path: "/login", // http://localhost:5173/#/login
-        component: Login,
-        meta: {
-            title: "登录页"
-        }
-    },
+//默认路由所有用户共享
+const routes = [{
+    path: "/", // http://localhost:5173
+    name: "admin",
+    component: Admin,
+},
+{
+    path: "/about", // http://localhost:5173/#/about
+    component: About,
+    meta: {
+        title: "关于"
+    }
+},
+{
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: NotFound
+},
+{
+    path: "/login", // http://localhost:5173/#/login
+    component: Login,
+    meta: {
+        title: "登录页"
+    }
+},
 ]
 
-const router = createRouter({
+//动态路由，用于匹配菜单动态添加路由
+const asyncRoutes = [{
+    path: "/",
+    name: "/",
+    component: Index,
+    meta: {
+        title: "后台首页"
+    },
+}, {
+    path: "/goods/list",
+    name: "/goods/list",
+    component: GoodList,
+    meta: {
+        title: "商品管理"
+    },
+}, {
+    path: "/category/list",
+    name: "/category/list",
+    component: CategoryList,
+    meta: {
+        title: "分类列表"
+    },
+}]
+export const router = createRouter({
     //使用url的#符号之后的部分模拟url路径的变化,因为不会触发页面刷新,所以不需要服务端支持
     history: createWebHashHistory(),
     routes
 })
 
-export default router
+//动态添加路由的方法
+export function addRoutes(menus) {
+    //是否有新的路由
+    let hasNewRoutes = false
+    const findAndAddRoutesByMenus = (arr) => {
+        arr.forEach(e => {
+            // e.frontpath拿到菜单路径
+            //通过o拿到asyncRoutes单独的path
+            let item = asyncRoutes.find(o => o.path == e.frontpath)
+            //是否存在 router.hasRoute()：检查路由是否存在。
+            if (item && !router.hasRoute(item.path)) {
+                //添加这个路由
+                //要将嵌套路由添加到现有的路由中，可以将路由的 name 作为第一个参数传递给 router.addRoute()，这将有效地添加路由，就像通过 children 添加的一样：
+                router.addRoute('admin', item)
+                hasNewRoutes = true
+            }
+            //child是否存在
+            if (e.child && e.child.length > 0) {
+                findAndAddRoutesByMenus(e.child)
+            }
+
+        })
+    }
+    findAndAddRoutesByMenus(menus)
+
+    return hasNewRoutes
+}

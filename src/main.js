@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
-import router from './router'
+import {router} from './router'
 import App from './App.vue'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue' //导入 ElementPlus 组件库中的所有图标
 import store from '@/store/index'

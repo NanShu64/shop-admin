@@ -1,4 +1,4 @@
-import router from "@/router"
+import { router, addRoutes } from "@/router"
 import { getToken } from "@/composables/auth";
 import { toast, showFullLoading, hideFullLoading } from "@/composables/util";
 import store from './store'
@@ -22,20 +22,20 @@ router.beforeEach(async (to, from, next) => {
         return next({ path: from.path ? from.path : "/" })
     }
     //如果用户登录了，自动获取登录用户信息，并存储在vuex当中
+    let hasNewRoutes = false
     if (token) {
         //获取用户相关信息
         //异步操作
-        await store.dispatch("getinfo")
-        //     getinfo().then(res1 => {
-        //         store.commit("SET_USERINFO", res1)
-        //         console.log(res1)
-        //     })
+        let { menus } = await store.dispatch("getinfo")
+        //动态添加路由
+        hasNewRoutes = addRoutes(menus)
+
     }
     //设置页面标题
     let title = (to.meta.title ? to.meta.title : "") + "-后台管理"
     document.title = title
     //确保 next 在任何给定的导航守卫中都被严格调用一次。
-    next()
+    hasNewRoutes ? next(to.fullPath) : next()
 })
 //全局后置守卫
 router.afterEach((to, from) => hideFullLoading())
