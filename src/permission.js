@@ -4,7 +4,8 @@ import { toast, showFullLoading, hideFullLoading } from "@/composables/util";
 import store from './store'
 // 全局前置守卫
 // const router = createRouter({})
-// let hasGetInfo =false
+//防止重复性加载getinfo
+let hasGetInfo = false
 router.beforeEach(async (to, from, next) => {
     // async 是一个通过异步执行并隐式返回 Promise 作为结果的函数
 
@@ -23,10 +24,11 @@ router.beforeEach(async (to, from, next) => {
     }
     //如果用户登录了，自动获取登录用户信息，并存储在vuex当中
     let hasNewRoutes = false
-    if (token) {
+    if (token && !hasGetInfo) {
         //获取用户相关信息
         //异步操作
         let { menus } = await store.dispatch("getinfo")
+        hasGetInfo = true
         //动态添加路由
         hasNewRoutes = addRoutes(menus)
 
