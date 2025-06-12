@@ -85,7 +85,7 @@ getStatistics2()
                 <IndexChart v-permission="['getStatistics3,GET']" />
             </el-col>
 
-            <el-col :span="12" :offset="0">
+            <el-col :span="12" :offset="0" v-permission="['getStatistics2,GET']">
                 <IndexCard title="店铺及商品提示" tip="店铺及商品提示" :btns="goods" class="mb-2.5" />
                 <IndexCard title="交易提示" tip="需要立即处理的交易订单" :btns="order" />
             </el-col>
