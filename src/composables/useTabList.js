@@ -52,6 +52,7 @@ export function useTabList() {
         activeTab.value = t
         router.push(t)
     }
+    //关闭标签
     const removeTab = (t) => {
         //点击关闭执行的方法
         let tabs = tabList.value
@@ -72,9 +73,10 @@ export function useTabList() {
         //得到下一个激活标签的路径，赋值给当前激活的activeTab,自动触发changeTab,自动跳转
         activeTab.value = a
         //只有不等于当前关闭的标签，才能留下
-        tabList.value = tabList.value.filter((tab) => tab.path !== t)
+        tabList.value = tabList.value.filter(tab => tab.path != t)
         cookie.set("tabList", tabList.value)
     }
+
     const handleClose = (c) => {
         if (c == "clearAll") {
             //切换回首页
@@ -84,11 +86,9 @@ export function useTabList() {
                 title: '后台首页',
                 path: "/"
             }]
-
         } else if (c == "clearOther") {
             // 过滤只剩下首页和当前激活
-            tabList.value = tabList.value.filter(tab => tab.path == "/" || tab.path ==
-                activeTab.value)
+            tabList.value = tabList.value.filter(tab => tab.path == "/" || tab.path == activeTab.value)
         }
         cookie.set("tabList", tabList.value)
     }

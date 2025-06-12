@@ -2,6 +2,7 @@
 import { getStatistics1 } from '@/api';
 import { ref } from 'vue';
 import CountTo from '@/components/CountTo.vue';
+import IndexNavs from '@/components/IndexNavs.vue';
 const panels = ref([])
 getStatistics1().then(res => {
     panels.value = res.panels
@@ -66,7 +67,7 @@ getStatistics1().then(res => {
             </el-col>
         </el-row>
 
-
+        <IndexNavs />
     </div>
 </template>
 <style scoped></style>

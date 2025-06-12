@@ -7,6 +7,13 @@ import Login from '@/pages/login.vue'
 import Admin from '@/layout/admin.vue'
 import GoodList from '@/pages/goods/list.vue'
 import CategoryList from '@/pages/category/list.vue'
+import UserList from '@/pages/user/list.vue'
+import OrderList from '@/pages/order/list.vue'
+import CommentList from '@/pages/comment/list.vue'
+import ImageList from '@/pages/image/list.vue'
+import NoticeList from '@/pages/notice/list.vue'
+import SettingBase from '@/pages/setting/base.vue'
+import CouponList from '@/pages/coupon/list.vue'
 
 //默认路由所有用户共享
 const routes = [{
@@ -57,7 +64,57 @@ const asyncRoutes = [{
     meta: {
         title: "分类列表"
     },
+}, {
+    path: "/user/list",
+    name: "/user/list",
+    component: UserList,
+    meta: {
+        title: "用户列表"
+    }
+}, {
+    path: "/order/list",
+    name: "/order/list",
+    component: OrderList,
+    meta: {
+        title: "订单列表"
+    }
+}, {
+    path: "/comment/list",
+    name: "/comment/list",
+    component: CommentList,
+    meta: {
+        title: "评价列表"
+    }
+}, {
+    path: "/image/list",
+    name: "/image/list",
+    component: ImageList,
+    meta: {
+        title: "图库列表"
+    }
+}, {
+    path: "/notice/list",
+    name: "/notice/list",
+    component: NoticeList,
+    meta: {
+        title: "公告列表"
+    }
+}, {
+    path: "/setting/base",
+    name: "/setting/base",
+    component: SettingBase,
+    meta: {
+        title: "配置"
+    }
+}, {
+    path: "/coupon/list",
+    name: "/coupon/list",
+    component: CouponList,
+    meta: {
+        title: "优惠券列表"
+    }
 }]
+
 export const router = createRouter({
     //使用url的#符号之后的部分模拟url路径的变化,因为不会触发页面刷新,所以不需要服务端支持
     history: createWebHashHistory(),
