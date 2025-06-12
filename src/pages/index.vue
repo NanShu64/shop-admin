@@ -1,13 +1,15 @@
 <script setup>
-import { getStatistics1 } from '@/api';
+import { getStatistics1 } from '@/api/index.js';
 import { ref } from 'vue';
 import CountTo from '@/components/CountTo.vue';
 import IndexNavs from '@/components/IndexNavs.vue';
+import IndexChart from '@/components/IndexChart.vue';
 const panels = ref([])
-getStatistics1().then(res => {
-    panels.value = res.panels
-
-})
+getStatistics1()
+    .then(res => {
+        panels.value = res.panels
+        console.log(panels.value);
+    })
 </script>
 
 <template>
@@ -68,6 +70,11 @@ getStatistics1().then(res => {
         </el-row>
 
         <IndexNavs />
+        <el-row :gutter="20">
+            <el-col :span="12" :offset="0">
+                <IndexChart />
+            </el-col>
+        </el-row>
     </div>
 </template>
 <style scoped></style>
