@@ -24,7 +24,7 @@ getStatistics2()
 
 <template>
     <div>
-        <el-row :gutter="20">
+        <el-row :gutter="20" v-permission="['getStatistics1,GET']">
             <template v-if="panels.length==0">
                 <el-col :span="6" v-for="i in 4" :key="i">
                     <el-skeleton style="width: 100%;" animated loading>
@@ -37,7 +37,6 @@ getStatistics2()
                                         <el-skeleton-item variant="text" style="width: 10%" />
                                     </div>
                                 </template>
-                                <!-- card body -->
                                 <el-skeleton-item variant="h3" style="width: 80%" />
                                 <el-divider />
                                 <div class="flex justify-between text-gray-500 text-sm">
@@ -82,12 +81,13 @@ getStatistics2()
         <IndexNavs />
         <el-row :gutter="20" class="mt-5">
             <el-col :span="12" :offset="0">
-                <IndexChart />
+                <!--['getStatistics3,GET'] 数组里面输入别名  -->
+                <IndexChart v-permission="['getStatistics3,GET']" />
             </el-col>
 
             <el-col :span="12" :offset="0">
-                <IndexCard title="店铺及商品提示" tip="店铺及商品提示"  :btns="goods" class="mb-2.5"/>
-                <IndexCard title="交易提示" tip="需要立即处理的交易订单"  :btns="order"/>
+                <IndexCard title="店铺及商品提示" tip="店铺及商品提示" :btns="goods" class="mb-2.5" />
+                <IndexCard title="交易提示" tip="需要立即处理的交易订单" :btns="order" />
             </el-col>
         </el-row>
     </div>

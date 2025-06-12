@@ -28,9 +28,11 @@ var myChart = null
 //默认为null，在onMounted() 中赋值
 onMounted(() => {
     var chartDom = document.getElementById('chart');
-    myChart = echarts.init(chartDom);
+    if(chartDom ){
+        myChart = echarts.init(chartDom);
 
-    getData()
+        getData()
+    }
 })
 
 //在页面销毁前释放,防白屏
