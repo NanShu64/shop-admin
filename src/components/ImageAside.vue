@@ -9,12 +9,22 @@ const loading = ref(false)
 //定义一个空数值,保存列表数据
 const list = ref([])
 const activeId = ref(0)
+// 分页部分
+const currentPage = ref(1)
+const total = ref(0)
+// 每页显示的条数
+const limit = ref(10)
 //获取数据
-function getData() {
-    // loading的状态设为true 
+function getData(p) {
+    if (typeof p == "number") {
+        currentPage.value = p
+    }
+    //loading的状态设为true 
     loading.value = true
-    getImageClassList(1)
+    //获取最新的数据
+    getImageClassList(currentPage.value)
         .then(res => {
+            total.value = res.totalCount
             list.value = res.list
             let item = list.value[0]
             if (item) {
@@ -36,9 +46,8 @@ getData()
             </AsideList>
         </div>
         <div class=" bottom">
-            <template>
-                <el-pagination background layout="prev, pager, next" :total="1000" />
-            </template>
+            <el-pagination background layout="prev,next" :total="total" current-page="currentPage" page-size="limit"
+                @current-change="getData" />
         </div>
     </el-aside>
 </template>

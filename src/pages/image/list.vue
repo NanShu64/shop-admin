@@ -13,8 +13,8 @@ const h = windowHeight - 150
   <div>
     <el-container class="bg-white rounded" :style="{height:(h+'px')}">
       <div class="image-header">
-        <el-check-tag>新增 </el-check-tag>
-        <el-check-tag>新增 </el-check-tag>
+        <!-- <el-check-tag>新增 </el-check-tag>
+        <el-check-tag>新增 </el-check-tag> -->
       </div>
       <el-container>
         <ImageAside />

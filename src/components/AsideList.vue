@@ -1,6 +1,4 @@
 <script setup>
-
-
 defineProps({
     active: {
         type: Boolean,
@@ -8,11 +6,11 @@ defineProps({
     }
 })
 
-defineEmits("edit", "delete")
+defineEmits(["edit", "delete"])
 </script>
 <template>
-    <div class="aside-list" :class="{'active':active}">
-        <span class="truncate" px-1>
+    <div class="aside-list" :class="{ 'active' : active }">
+        <span class="truncate">
             <!-- truncate超出部分隐藏 -->
             <slot />
         </span>
@@ -34,10 +32,12 @@ defineEmits("edit", "delete")
 <style scoped>
 .aside-list {
     border-bottom: 1px solid #f4f4f4;
+    cursor: pointer;
     @apply flex items-center p-3 text-sm text-gray-600;
 }
 
-.aside-list:hover {
+.aside-list:hover,
+.active {
     @apply bg-green-50;
 }
 </style>
