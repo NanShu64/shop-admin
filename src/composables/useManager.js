@@ -18,6 +18,7 @@ export function useRepassword() {
         password: '',
         repassword: ''
     })
+    //验证规则
     const rules = {
         oldpassword: [
             {
@@ -45,6 +46,7 @@ export function useRepassword() {
 
     const onSubmit = () => {
         formRef.value.validate((valid) => {
+            //form表单节点当中的valuedata的回调，用valid来接收
             if (!valid) {
                 return false
             }

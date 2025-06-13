@@ -8,7 +8,7 @@ const showDrawer = ref(false)
 const open = () => showDrawer.value = true
 //关闭
 const close = () => showDrawer.value = false
-//
+//暴露方法
 const prop = defineProps({
     title: String,
     size: {
@@ -26,8 +26,8 @@ const prop = defineProps({
 })
 //加载 
 const loading = ref(false)
-const showLoading =()=> loading.value=true
-const hideLoading =()=> loading.value=false
+const showLoading = () => loading.value = true
+const hideLoading = () => loading.value = false
 //提交
 const emit = defineEmits(['submit'])
 const submit = () => emit("submit")

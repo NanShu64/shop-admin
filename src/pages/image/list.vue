@@ -1,23 +1,26 @@
 <script setup>
-
 import ImageMain from '@/components/ImageMain.vue'
 import ImageAside from '@/components/ImageAside.vue'
-
+import { ref } from 'vue'
 
 const windowHeight = window.innerHeight || document.body.clientHeight
 //拿到浏览器可视部分高度,或
 const h = windowHeight - 150
 //浏览器高度减去
+
+const ImageAsideRef = ref(null)
+const handleOpenCreate = () => ImageAsideRef.value.handleCreate()
+// const uploadPictures = () =>
 </script>
 <template>
   <div>
     <el-container class="bg-white rounded" :style="{height:(h+'px')}">
-      <div class="image-header">
-        <!-- <el-check-tag>新增 </el-check-tag>
-        <el-check-tag>新增 </el-check-tag> -->
-      </div>
+      <el-header class="image-header">
+        <el-button type="primary" size="small" @click="handleOpenCreate">新增图片分类</el-button>
+        <el-button size="small" @click="uploadPictures">上传图片 </el-button>
+      </el-header>
       <el-container>
-        <ImageAside />
+        <ImageAside ref="ImageAsideRef" />
         <ImageMain />
       </el-container>
     </el-container>
