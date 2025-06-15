@@ -13,13 +13,14 @@ defineEmits(["edit", "delete"])
             <!-- truncate超出部分隐藏 -->
             <slot />
         </span>
-        <el-button class="ml-auto px-1" text type="primary" size="small" @click="$emit('edit')">
+        <el-button class="ml-auto px-1" text type="primary" size="small" @click.stop="$emit('edit')">
+            <!-- .stop防止触发冒泡事件 -->
             <el-icon :size="12">
                 <Edit />
             </el-icon>
         </el-button>
 
-        <el-popconfirm title="是否要删除该分类？" confirmButtonText="确认" cancelButtonText="取消" @confirm="$emit('delete')">
+        <el-popconfirm title="是否要删除该分类？" confirmButtonText="确认" cancelButtonText="取消" @confirm.stop="$emit('delete')">
             <template #reference>
                 <el-button text class="px-1" type="primary" size="small">
                     <el-icon :size="12">
