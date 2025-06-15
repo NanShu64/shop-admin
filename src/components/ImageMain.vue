@@ -2,6 +2,7 @@
 import { deleteImage, getImageList, updateImage } from "@/api/image.js"
 import { ref } from 'vue';
 import { showPrompt, toast } from '@/composables/util'
+import UploadFile from '@/components/UploadFile.vue'
 // 分页部分
 const currentPage = ref(1)
 const total = ref(0)
@@ -66,10 +67,19 @@ const loadData = (id) => {
     image_class_id.value = id
     getData()
 }
+
+//上传图片
+const drawer = ref(false)
+const openUploadFile = ()=>drawer.value = true
+
 // 暴露方法给ImageAside，根据分类id加载图片列表
 defineExpose({
-    loadData
+    loadData,
+    openUploadFile
 })
+//上传成功
+const handlUploadSuccess=()=>getData(1)
+
 </script>
 <template>
     <el-main class="image-main" v-loading="loading">
@@ -86,7 +96,8 @@ defineExpose({
                         </div>
                         <div class="flex items-center justify-center p-2">
                             <el-button type="primary" size="small" text @click="handleEdit(item)">重命名</el-button>
-                            <el-popconfirm title="是否要删除该图片？" confirmButtonText="确认" cancelButtonText="取消" @confirm="handleDelete(item.id)">
+                            <el-popconfirm title="是否要删除该图片？" confirmButtonText="确认" cancelButtonText="取消"
+                                @confirm="handleDelete(item.id)">
                                 <template #reference>
                                     <el-button type="primary" size="small" text>删除</el-button>
                                 </template>
@@ -104,6 +115,9 @@ defineExpose({
                 :page-size="limit" @current-change="getData" />
         </div>
     </el-main>
+    <el-drawer v-model="drawer" title="上传图片">
+        <UploadFile :data="{image_class_id}" @success="handlUploadSuccess"/>
+    </el-drawer>
 </template>
 
 
