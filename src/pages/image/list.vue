@@ -11,6 +11,11 @@ const h = windowHeight - 150
 const ImageAsideRef = ref(null)
 const handleOpenCreate = () => ImageAsideRef.value.handleCreate()
 // const uploadPictures = () =>
+
+
+const ImageMainRef = ref(null)
+const handleAsideChange = (image_class_id) => ImageMainRef.value.loadData(image_class_id)
+
 </script>
 <template>
   <div>
@@ -20,8 +25,8 @@ const handleOpenCreate = () => ImageAsideRef.value.handleCreate()
         <el-button size="small" @click="uploadPictures">上传图片 </el-button>
       </el-header>
       <el-container>
-        <ImageAside ref="ImageAsideRef" />
-        <ImageMain />
+        <ImageAside ref="ImageAsideRef" @change="handleAsideChange" />
+        <ImageMain ref="ImageMainRef" />
       </el-container>
     </el-container>
   </div>

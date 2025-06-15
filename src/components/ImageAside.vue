@@ -15,7 +15,7 @@ import { computed } from "@vue/reactivity";
 const loading = ref(false)
 //定义一个空数值,保存列表数据
 const list = ref([])
-const activeId = ref(0)
+
 // 分页部分
 const currentPage = ref(1)
 const total = ref(0)
@@ -31,11 +31,12 @@ function getData(p) {
     //获取最新的数据
     getImageClassList(currentPage.value)
         .then(res => {
+            //总数赋值给total
             total.value = res.totalCount
             list.value = res.list
             let item = list.value[0]
             if (item) {
-                activeId.value = item.id
+                handleChangeActionID(item.id)
             }
 
         }).finally(() => {
@@ -124,6 +125,16 @@ const handleDelete = (id) => {
             loading.value = false
         })
 }
+//选中图库分类ID
+const activeId = ref(0)
+//暴露
+const emit = defineEmits(["change"])
+//切换分类方法
+function handleChangeActionID(id) {
+    activeId.value = id
+    //通知父组件list,将id传过去
+    emit("change",id)
+}
 // 暴露方法
 defineExpose({
     handleCreate
@@ -133,12 +144,12 @@ defineExpose({
     <el-aside width="220px" class="image-aside" v-loading="loading">
         <div class="top">
             <AsideList :active="activeId == item.id" v-for="(item,index) in list" :key="index" @edit="handleEdit(item)"
-                @delete="handleDelete(item.id)">
+                @delete="handleDelete(item.id)" @click="handleChangeActionID(item.id)">
                 {{item.name}}
             </AsideList>
         </div>
         <div class=" bottom">
-            <el-pagination background layout="prev,next" :total="total" :current-page="currentPage" page-size="limit"
+            <el-pagination background layout="prev,next" :total="total" :current-page="currentPage" :page-size="limit"
                 @current-change="getData" />
         </div>
     </el-aside>
