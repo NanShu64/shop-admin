@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref } from 'vue';
+import { reactive, ref, computed } from 'vue';
 import AsideList from './AsideList.vue';
 import {
     getImageClassList,
@@ -9,7 +9,6 @@ import {
 } from "@/api/image_class.js"
 import FormDrawer from './FormDrawer.vue';
 import { toast } from '@/composables/util';
-import { computed } from "@vue/reactivity";
 
 //加载动画
 const loading = ref(false)
@@ -45,7 +44,7 @@ function getData(p) {
 }
 
 getData()
-//
+//标识区别新增和编辑（修改
 const editId = ref(0)
 const drawerTitle = computed(() => editId.value ? "修改" : "新增")
 //初始化
@@ -74,9 +73,8 @@ const formRef = ref(null)
 const handleSubmit = () => {
     formRef.value.validate((valid) => {
         //form表单节点当中的valuedata的回调，用valid来接收
-        if (!valid)
-            //如果valid=false,就终止
-            return
+        if (!valid) return
+        //如果valid=false,就终止
         //提交按钮处于loading状态
         formDrawerRef.value.showLoading()
         //修改或新增
@@ -133,7 +131,7 @@ const emit = defineEmits(["change"])
 function handleChangeActionID(id) {
     activeId.value = id
     //通知父组件list,将id传过去
-    emit("change",id)
+    emit("change", id)
 }
 // 暴露方法
 defineExpose({

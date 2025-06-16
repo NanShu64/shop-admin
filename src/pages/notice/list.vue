@@ -1,19 +1,20 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import {
   getNoticeList,
-  updateNotice,
+  createNotice,
   deleteNotice,
-  updateNoticeAction
-} from "@/api/image_class.js"
-//刷新
-const handleRefresh = () => location.reload()
-const tableData = ref([])
+  updateNotice
+} from "@/api/notice.js"
+import FormDrawer from '@/components/FormDrawer.vue';
+import { toast } from '@/composables/util';
+
+
 
 //加载动画
 const loading = ref(false)
 //定义一个空数值,保存列表数据
-const list = ref([])
+const tableData = ref([])
 
 // 分页部分
 const currentPage = ref(1)
@@ -31,46 +32,59 @@ function getData(p) {
   getNoticeList(currentPage.value)
     .then(res => {
       //总数赋值给total
-      tableData.value = res.totalCount
+      tableData.value = res.list
       total.value = res.totalCount
-      let item = list.value[0]
-      if (item) {
-        handleChangeActionID(item.id)
-      }
-
     }).finally(() => {
       loading.value = false
     })
 }
-
-function getData() {
-  tableData.value = [{
-    "id": id,
-    "title": title,
-    "content": content,
-    "order": 0,
-    "create_time": create_time,
-    "update_time": update_time
-  }]
-}
 getData()
+
+//初始化
+const formDrawerRef = ref(null)
+// 表单的ref默认为null
+const formRef = ref(null)
+//
+const form = reactive({
+  title: "",
+  content: ""
+})
+//验证规则
+const rules = {
+  title: [
+    {
+      required: true,
+      message: '公告名称不能为空',
+      trigger: 'blur'
+    },
+  ],
+  content: [
+    {
+      required: true,
+      message: '图公告内容不能为空',
+      trigger: 'blur'
+    },
+  ],
+}
+//标识区别新增和编辑（修改
+const editId = ref(0)
+const drawerTitle = computed(() => editId.value ? "修改" : "新增")
 //提交方法
 const handleSubmit = () => {
   formRef.value.validate((valid) => {
     //form表单节点当中的valuedata的回调，用valid来接收
-    if (!valid)
-      //如果valid=false,就终止
-      return
+    if (!valid) return
+    //如果valid=false,就终止
     //提交按钮处于loading状态
     formDrawerRef.value.showLoading()
     //修改或新增
-    const fun = editId.value ? updateImageClass(editId.value, form) : createImageClass(form)
+    const fun = editId.value ? updateNotice(editId.value, form) : createNotice(form)
     //传入name和order它们等于form
     fun.then(res => {
       //提示提交成功
       toast("通知", drawerTitle.value + "成功", "success")
-      //重新加载数据,如果是修改就传当前页的，否则回到第一页
-      getData(editId.value ? currentPage.value : 1)
+      //重新加载数据,如果是修改就传刷新当前页的，新增刷新第一页
+      getData(editId.value ? false : 1)
       //关闭抽屉
       formDrawerRef.value.close()
     }).finally(() => {
@@ -79,22 +93,30 @@ const handleSubmit = () => {
     })
   })
 }
+//重置表单
+function resetForm(row = false) {
+  if (formRef.value) formRef.value.clearValidate()
+  if (row) {
+    for (const key in form) {
+      form[key] = row[key]
+    }
+  }
+}
 //新增方法
 const handleCreate = () => {
   editId.value = 0
-  //初始化,清空一下
-  form.name = ""
-  form.order = 50
+  //定义初始值
+  resetForm({
+    title: "",
+    content: ""
+  })
   formDrawerRef.value.open()
 }
-// 暴露方法
-defineExpose({
-  handleCreate
-})
+
 // 删除方法
 const handleDelete = (id) => {
   loading.value = true
-  deleteImage([id])
+  deleteNotice(id)
     .then(res => {
       toast("通知", "删除成功", "success")
       //重新调用当页的数据
@@ -104,21 +126,12 @@ const handleDelete = (id) => {
       loading.value = false
     })
 }
-//修改方法
-const handleEdit = (item) => {
-  showPrompt("重命名", item.name)
-    .then(({ value }) => {
-      //修改之后可以开启loading状态
-      loading.value = true
-      //传最新的 id，name
-      updateImage(item.id, value).then(res => {
-        toast("通知", "修改成功", "success")
-        //重新调用当页的数据
-        getData()
-      }).finally(() => {
-        loading.value = false
-      })
-    })
+//修改(编辑方法
+const handleEdit = (row) => {
+  resetForm(row)
+  // 等于当前对象id
+  editId.value = row.id
+  formDrawerRef.value.open()
 }
 </script>
 <template>
@@ -127,20 +140,20 @@ const handleEdit = (item) => {
       <!-- 新增|刷新 -->
       <div class="flex items-center justify-between mb-4">
         <el-button type="primary" size="small" @click="handleCreate">新增</el-button>
-        <el-button text>
-          <el-tooltip class="box-item" effect="dark" content="刷新" placement="bottom-top">
-            <el-icon class="icon-btn" @click="getData">
+        <el-tooltip effect="dark" content="刷新数据" placement="top">
+          <el-button text @click="getData">
+            <el-icon :size="20">
               <Refresh />
             </el-icon>
-          </el-tooltip>
-        </el-button>
+          </el-button>
+        </el-tooltip>
       </div>
       <el-table :data="tableData" stripe style="width: 100%;" v-loading="loading">
         <el-table-column prop="title" label="公告标题" />
-        <el-table-column prop="create_time" label="发布时间" width="300" />
-        <el-table-column label="操作" width="180" align="content">
+        <el-table-column prop="create_time" label="发布时间" width="380" />
+        <el-table-column label="操作" width="180" align="center">
           <template #default="scope">
-            <el-button type="primary" size="small" text @click="handleEdit(item)">修改</el-button>
+            <el-button type="primary" size="small" text @click="handleEdit(scope.row)">修改</el-button>
             <el-popconfirm title="是否要删除该公告？" confirmButtonText="确认" cancelButtonText="取消"
               @confirm="handleDelete(scope.row.id)">
               <template #reference>
@@ -155,7 +168,18 @@ const handleEdit = (item) => {
           @current-change="getData" />
       </div>
 
-      <!-- card body -->
+      <FormDrawer ref="formDrawerRef" :title="drawerTitle" @submit="handleSubmit">
+        <el-form ref="formRef" :model="form" :rules="rules" status-icon label-width="80px" :inline="false">
+          <el-form-item label="公告标题" prop="title">
+            <!-- 用了:rules="rules"验证规则，需要声明哪个字段 prop="title" -->
+            <el-input v-model="form.title" placeholder="公告标题" />
+          </el-form-item>
+          <el-form-item label="公告内容" prop="content">
+            <el-input v-model="form.content" placeholder="公告内容" type="textarea" :rows="5" />
+            <!-- :rows="5" 显示5列 -->
+          </el-form-item>
+        </el-form>
+      </FormDrawer>
     </el-card>
 
   </div>
