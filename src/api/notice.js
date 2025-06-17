@@ -10,5 +10,5 @@ export function deleteNotice(id) {
     return axios.post(`/admin/notice/${id}/delete`)
 }
 export function updateNotice(id, data) {
-    return axios.post(`/admin/notice/`+id, data)
+    return axios.post(`/admin/notice/` + id, data)
 }

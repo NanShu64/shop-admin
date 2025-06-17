@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref } from 'vue';
 import {
     getManagerList,
     createManager,
@@ -9,166 +9,81 @@ import {
 } from "@/api/manager.js"
 import FormDrawer from '@/components/FormDrawer.vue';
 import ChooseImage from '@/components/ChooseImage.vue';
-import { toast } from '@/composables/util';
-
-const searchForm = reactive({
-    keyword: ""
-})
-const resetSearchForm = () => {
-    searchForm.keyword = ""
-    getData()
-}
-//加载动画
-const loading = ref(false)
-//定义一个空数值,保存列表数据
-const tableData = ref([])
-
-// 分页部分
-const currentPage = ref(1)
-const total = ref(0)
-// 每页显示的条数
-const limit = ref(10)
+import { useInitTable, useInitForm } from '@/composables/useCommon.js'
 //定义一个空数值,保存角色列表数据
 const roles = ref([])
-//获取数据
-function getData(p) {
-    if (typeof p == "number") {
-        currentPage.value = p
-    }
-    //loading的状态设为true 
-    loading.value = true
-    //获取最新的数据
-    getManagerList(currentPage.value, searchForm)
-        .then(res => {
-            //总数赋值给total
-            tableData.value = res.list.map(o => {
-                o.statusLoading = false
-                //修改loading状态
-                return o
-            })
-            total.value = res.totalCount
-            roles.value = res.roles
-        }).finally(() => {
-            loading.value = false
+const {
+    searchForm,
+    resetSearchForm,
+    tableData,
+    loading,
+    currentPage,
+    total,
+    limit,
+    getData,
+    handleDelete,
+    handleStatusChange
+} = useInitTable({
+    searchForm: {
+        keyword: ""
+    },
+    getList: getManagerList,
+    onGetListSuccess: (res) => {
+        //总数赋值给total
+        tableData.value = res.list.map(o => {
+            o.statusLoading = false
+            //修改loading状态
+            return o
         })
-}
-getData()
+        total.value = res.totalCount
+        roles.value = res.roles
 
-//初始化
-const formDrawerRef = ref(null)
-// 表单的ref默认为null
-const formRef = ref(null)
-//
-const form = reactive({
-    username: "",
-    password: "",
-    role_id: null,
-    status: "",
-    avatar: ""
-
+    },
+    delete: deleteManager,
+    updateStatus: updateManagerStatus,
 })
-//验证规则
-const rules = {
-    username: [
-        {
-            required: true,
-            message: '用户名不能为空',
-            trigger: 'blur'
-        },
-    ],
-    password: [
-        {
-            required: true,
-            message: '密码不能为空',
-            trigger: 'blur'
-        },
-    ],
-}
-//标识区别新增和编辑（修改
-const editId = ref(0)
-const drawerTitle = computed(() => editId.value ? "修改" : "新增")
-//提交方法
-const handleSubmit = () => {
-    formRef.value.validate((valid) => {
-        //form表单节点当中的valuedata的回调，用valid来接收
-        if (!valid) return
-        //如果valid=false,就终止
-        //提交按钮处于loading状态
-        formDrawerRef.value.showLoading()
-        //修改或新增
-        const fun = editId.value ? updateManager(editId.value, form) : createManager(form)
-        //传入name和order它们等于form
-        fun.then(res => {
-            //提示提交成功
-            toast("通知", drawerTitle.value + "成功", "success")
-            //重新加载数据,如果是修改就传刷新当前页的，新增刷新第一页
-            getData(editId.value ? false : 1)
-            //关闭抽屉
-            formDrawerRef.value.close()
-        }).finally(() => {
-            //请求结束隐藏loading状态
-            formDrawerRef.value.hideLoading()
-        })
-    })
-}
-//重置表单
-function resetForm(row = false) {
-    if (formRef.value) formRef.value.clearValidate()
-    if (row) {
-        for (const key in form) {
-            form[key] = row[key]
-        }
-    }
-}
-//新增方法
-const handleCreate = () => {
-    editId.value = 0
-    //定义初始值
-    resetForm({
+
+const {
+    formDrawerRef,
+    formRef,
+    form,
+    rules,
+    drawerTitle,
+    handleSubmit,
+    handleCreate,
+    handleEdit
+} = useInitForm({
+
+    form: {
         username: "",
         password: "",
         role_id: null,
-        status: "",
+        status: 1,
         avatar: ""
-    })
-    formDrawerRef.value.open()
-}
-//修改状态
-const handleStatusChange = (status, row) => {
-    row.statusloading = true
-    // $event>status
-    //拿到当前对象的id
-    updateManagerStatus(row.id, status)
-        .then(res => {
-            toast("通知", "修改状态成功", "success")
-            row.status = status
-            //重新调用当页的数据
-            getData()
-        })
-        .finally(() => {
-            row.statusloading = false
-        })
-}
-// 删除方法
-const handleDelete = (id) => {
-    loading.value = true
-    deleteManager(id)
-        .then(res => {
-            toast("通知", "删除成功", "success")
-            //重新调用当页的数据
-            getData()
-        })
-        .finally(() => {
-            loading.value = false
-        })
-}
-//修改(编辑方法
-const handleEdit = (row) => {
-    resetForm(row)
-    // 等于当前对象id
-    editId.value = row.id
-    formDrawerRef.value.open()
-}
+    },
+    getData,
+    update: updateManager,
+    create: createManager,
+    rules: {
+        username: [
+            {
+                required: true,
+                message: '用户名不能为空',
+                trigger: 'blur'
+            },
+        ],
+        password: [
+            {
+                required: true,
+                message: '密码不能为空',
+                trigger: 'blur'
+            },
+        ],
+    }
+})
+
+
+
 
 
 </script>
@@ -257,7 +172,7 @@ const handleEdit = (row) => {
         </div>
 
         <FormDrawer ref="formDrawerRef" :title="drawerTitle" @submit="handleSubmit">
-            <el-form ref="formRef" :model="form" status-icon label-width="80px" :inline="false">
+            <el-form ref="formRef" :model="form" :rules="rules" label-width="80px" :inline="false">
                 <el-form-item label="用户名" prop="username">
                     <!-- 用了:rules="rules"验证规则，需要声明哪个字段 prop="title" -->
                     <el-input v-model="form.username" placeholder="用户名" />
