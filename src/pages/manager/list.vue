@@ -9,8 +9,13 @@ import {
 import FormDrawer from '@/components/FormDrawer.vue';
 import { toast } from '@/composables/util';
 
-
-
+const searchForm = reactive({
+    keyword: ""
+})
+const resetSearchForm = () => {
+    searchForm.keyword = ""
+    getData()
+}
 //加载动画
 const loading = ref(false)
 //定义一个空数值,保存列表数据
@@ -29,12 +34,7 @@ function getData(p) {
     //loading的状态设为true 
     loading.value = true
     //获取最新的数据
-    getManagerList(currentPage.value
-        // , {
-        //     limit: 10,
-        //     keyword: "ceshi"
-        // }
-    )
+    getManagerList(currentPage.value, searchForm)
         .then(res => {
             //总数赋值给total
             tableData.value = res.list
@@ -138,93 +138,118 @@ const handleEdit = (row) => {
     editId.value = row.id
     formDrawerRef.value.open()
 }
+
+
 </script>
 <template>
-    <div>
-        <el-card shadow="never" class="border-0">
-            <!-- 新增|刷新 -->
-            <div class="flex items-center justify-between mb-4">
-                <el-button type="primary" size="small" @click="handleCreate">新增</el-button>
-                <el-tooltip effect="dark" content="刷新数据" placement="top">
-                    <el-button text @click="getData">
-                        <el-icon :size="20">
-                            <Refresh />
-                        </el-icon>
-                    </el-button>
-                </el-tooltip>
-            </div>
-            <el-table :data="tableData" stripe style="width: 100%;" v-loading="loading">
-                <el-table-column label="管理员" width="200">
-                    <template #default="{ row }">
-                        <div class="flex items-center ">
-                            <el-avatar :size="40" :src="row.avatar">
-                                <img src="" />
-                            </el-avatar>
-                            <div class="ml-3">
-                                <h6>
-                                    {{ row.username }}
-                                </h6>
-                                <small>
-                                    ID:{{ row.id }}
-                                </small>
-                            </div>
+    <el-card shadow="never" class="border-0">
+        <!-- 搜索 -->
+        <el-form :model="searchForm" label-width="80px" class="mb-3" size="small">
+            <el-row :gutter="20">
+                <el-col :span="8" :offset="0">
+                    <el-form-item label="关键词">
+                        <el-input v-model="searchForm.keyword" placeholder="管理员昵称" clearable></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8" :offset="8">
+                    <div class="flex items-center justify-end">
+                        <el-button type="primary" @click="getData">搜索</el-button>
+                        <el-button @click="resetSearchForm">重置</el-button>
+                    </div>
+                </el-col>
+            </el-row>
+        </el-form>
+
+        <!-- 新增|刷新 -->
+        <div class="flex items-center justify-between mb-4">
+            <el-button type="primary" size="small" @click="handleCreate">新增</el-button>
+            <el-tooltip effect="dark" content="刷新数据" placement="top">
+                <el-button text @click="getData">
+                    <el-icon :size="20">
+                        <Refresh />
+                    </el-icon>
+                </el-button>
+            </el-tooltip>
+        </div>
+        <el-table :data="tableData" stripe style="width: 100%;" v-loading="loading">
+            <el-table-column label="管理员" width="200">
+                <template #default="{ row }">
+                    <div class="flex items-center ">
+                        <el-avatar :size="40" :src="row.avatar">
+                            <img src="" />
+                        </el-avatar>
+                        <div class="ml-3">
+                            <h6>
+                                {{ row.username }}
+                            </h6>
+                            <small>
+                                ID:{{ row.id }}
+                            </small>
                         </div>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="create_time" label="所属角色" align="center">
-                    <template #default="{ row }">
-                        {{ row.role ?.name|| "-" }}
-                        <!-- row.role.name : ''可以简写成 .name|| "-" -->
-                    </template>
-                </el-table-column>
-                <el-table-column prop="create_time" label="状态" width="120" align="center">
-                    <template #default="{ row }">
-                        <el-switch :modelValue="row.status" :active-value="1" :inactive-value="0">
-                        </el-switch>
-                    </template>
-                </el-table-column>
-                <el-table-column label="操作" width="180" align="center">
-                    <template #default="scope">
-                        <el-button type="primary" size="small" text @click="handleEdit(scope.row)">修改</el-button>
-                        <el-popconfirm title="是否要删除该管理员？" confirmButtonText="确认" cancelButtonText="取消"
-                            @confirm="handleDelete(scope.row.id)">
-                            <template #reference>
-                                <el-button type="primary" size="small" text>删除</el-button>
-                            </template>
-                        </el-popconfirm>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <div class="flex items-center justify-center mt-5">
-                <el-pagination background layout="prev,pager,next" :total="total" :current-page="currentPage"
-                    :page-size="limit" @current-change="getData" />
-            </div>
+                    </div>
+                </template>
+            </el-table-column>
+            <el-table-column prop="create_time" label="所属角色" align="center">
+                <template #default="{ row }">
+                    {{ row.role ?.name|| "-" }}
+                    <!-- row.role.name : ''可以简写成 .name|| "-" -->
+                </template>
+            </el-table-column>
+            <el-table-column prop="create_time" label="状态" width="120" align="center">
+                <template #default="{ row }">
+                    <el-switch :modelValue="row.status" :active-value="1" :inactive-value="0">
+                    </el-switch>
+                </template>
+            </el-table-column>
+            <el-table-column label="操作" width="180" align="center">
+                <template #default="scope">
+                    <el-button type="primary" size="small" text @click="handleEdit(scope.row)">修改</el-button>
+                    <el-popconfirm title="是否要删除该管理员？" confirmButtonText="确认" cancelButtonText="取消"
+                        @confirm="handleDelete(scope.row.id)">
+                        <template #reference>
+                            <el-button type="primary" size="small" text>删除</el-button>
+                        </template>
+                    </el-popconfirm>
+                </template>
+            </el-table-column>
+        </el-table>
+        <div class="flex items-center justify-center mt-5">
+            <el-pagination background layout="prev,pager,next" :total="total" :current-page="currentPage"
+                :page-size="limit" @current-change="getData" />
+        </div>
 
-            <FormDrawer ref="formDrawerRef" :title="drawerTitle" @submit="handleSubmit">
-                <el-form ref="formRef" :model="form" :rules="rules" status-icon label-width="80px" :inline="false">
-                    <el-form-item label="用户名" prop="title">
-                        <!-- 用了:rules="rules"验证规则，需要声明哪个字段 prop="title" -->
-                        <el-input v-model="form.title" placeholder="用户名" />
-                    </el-form-item>
-                    <el-form-item label="密码" prop="password">
-                        <el-input v-model="form.password" placeholder="密码" type="textarea" :rows="5" />
-                        <!-- :rows="5" 显示5列 -->
-                    </el-form-item>
-                    <el-form-item label="头像" prop="content">
-                        <el-input v-model="form.content" placeholder="头像" type="textarea" :rows="5" />
-                        <!-- :rows="5" 显示5列 -->
-                    </el-form-item>
-                    <el-form-item label="所属角色" prop="content">
-                        <el-input v-model="form.content" placeholder="公告内容" type="textarea" :rows="5" />
-                        <!-- :rows="5" 显示5列 -->
-                    </el-form-item>
-                    <el-form-item label="状态" prop="content">
-                        <el-input v-model="form.content" placeholder="公告内容" type="textarea" :rows="5" />
-                        <!-- :rows="5" 显示5列 -->
-                    </el-form-item>
-                </el-form>
-            </FormDrawer>
-        </el-card>
+        <FormDrawer ref="formDrawerRef" :title="drawerTitle" @submit="handleSubmit">
+            <el-form ref="formRef" :model="form" :rules="rules" status-icon label-width="80px" :inline="false">
+                <el-form-item label="用户名" prop="title">
+                    <!-- 用了:rules="rules"验证规则，需要声明哪个字段 prop="title" -->
+                    <el-input v-model="form.title" placeholder="用户名" />
+                </el-form-item>
+                <el-form-item label="密码" prop="password">
+                    <el-input v-model="form.password" placeholder="密码" type="textarea" :rows="5" />
+                    <!-- :rows="5" 显示5列 -->
+                </el-form-item>
+                <el-form-item label="头像" prop="content">
+                    <el-upload class="avatar-uploader"
+                        action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15" :show-file-list="false"
+                        :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
+                        <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+                        <el-icon v-else class="avatar-uploader-icon">
+                            <Plus />
+                        </el-icon>
+                    </el-upload>
+                    <el-input v-model="form.content" placeholder="头像" type="textarea" :rows="5" />
+                    <!-- :rows="5" 显示5列 -->
+                </el-form-item>
+                <el-form-item label="所属角色" prop="content">
+                    <el-input v-model="form.content" placeholder="公告内容" type="textarea" :rows="5" />
+                    <!-- :rows="5" 显示5列 -->
+                </el-form-item>
+                <el-form-item label="状态" prop="content">
+                    <el-input v-model="form.content" placeholder="公告内容" type="textarea" :rows="5" />
+                    <!-- :rows="5" 显示5列 -->
+                </el-form-item>
+            </el-form>
+        </FormDrawer>
+    </el-card>
 
-    </div>
 </template>
