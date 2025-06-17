@@ -2,9 +2,10 @@
 import { ref, reactive, computed } from 'vue';
 import {
     getManagerList,
-    // createManager,
-    // deleteManager,
-    // updateManager
+    createManager,
+    deleteManager,
+    updateManager,
+    updateManagerStatus
 } from "@/api/manager.js"
 import FormDrawer from '@/components/FormDrawer.vue';
 import { toast } from '@/composables/util';
@@ -37,7 +38,11 @@ function getData(p) {
     getManagerList(currentPage.value, searchForm)
         .then(res => {
             //总数赋值给total
-            tableData.value = res.list
+            tableData.value = res.list.map(o => {
+                o.statusLoading = false
+                //修改loading状态
+                return o
+            })
             total.value = res.totalCount
         }).finally(() => {
             loading.value = false
@@ -117,7 +122,22 @@ const handleCreate = () => {
     })
     formDrawerRef.value.open()
 }
-
+//修改状态
+const handleStatusChange = (status, row) => {
+    row.statusloading = true
+    // $event>status
+    //拿到当前对象的id
+    updateManagerStatus(row.id, status)
+        .then(res => {
+            toast("通知", "修改状态成功", "success")
+            row.status = status
+            //重新调用当页的数据
+            getData()
+        })
+        .finally(() => {
+            row.statusloading = false
+        })
+}
 // 删除方法
 const handleDelete = (id) => {
     loading.value = true
@@ -197,19 +217,25 @@ const handleEdit = (row) => {
             </el-table-column>
             <el-table-column prop="create_time" label="状态" width="120" align="center">
                 <template #default="{ row }">
-                    <el-switch :modelValue="row.status" :active-value="1" :inactive-value="0">
+                    <el-switch :modelValue="row.status" :active-value="1" :inactive-value="0"
+                        :loading="row.statusLoading" :disabled="row.super == 1"
+                        @change="handleStatusChange($event,row)">
+                        <!-- :disabled="row.super == 1" 超级管理员不允许修改 -->
                     </el-switch>
                 </template>
             </el-table-column>
             <el-table-column label="操作" width="180" align="center">
                 <template #default="scope">
-                    <el-button type="primary" size="small" text @click="handleEdit(scope.row)">修改</el-button>
-                    <el-popconfirm title="是否要删除该管理员？" confirmButtonText="确认" cancelButtonText="取消"
-                        @confirm="handleDelete(scope.row.id)">
-                        <template #reference>
-                            <el-button type="primary" size="small" text>删除</el-button>
-                        </template>
-                    </el-popconfirm>
+                    <small v-if="scope.row.super == 1" class="text-sm text-gray-500 ">暂无操作</small>
+                    <div v-else>
+                        <el-button type="primary" size="small" text @click="handleEdit(scope.row)">修改</el-button>
+                        <el-popconfirm title="是否要删除该管理员？" confirmButtonText="确认" cancelButtonText="取消"
+                            @confirm="handleDelete(scope.row.id)">
+                            <template #reference>
+                                <el-button type="primary" size="small" text>删除</el-button>
+                            </template>
+                        </el-popconfirm>
+                    </div>
                 </template>
             </el-table-column>
         </el-table>
