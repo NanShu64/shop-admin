@@ -36,12 +36,13 @@ export function updateManagerStatus(id, status) {
         status
     })
 }
-export function updateManager(id, data) {
-    return axios.post(`/admin/manager/${id}`, data)
+export function createManager(data) {
+    return axios.post("/admin/manager", data)
 }
 export function deleteManager(id) {
     return axios.post(`admin/manager/${id}/delete`)
 }
-export function createManager(data) {
-    return axios.post("/admin/manager", data)
+export function updateManager(id, data) {
+    return axios.post(`/admin/manager/${id}`, data)
 }
+
