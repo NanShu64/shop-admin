@@ -1,6 +1,6 @@
 <script setup>
 import { deleteImage, getImageList, updateImage } from "@/api/image.js"
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { showPrompt, toast } from '@/composables/util'
 import UploadFile from '@/components/UploadFile.vue'
 // 分页部分
@@ -27,7 +27,12 @@ function getData(p) {
         .then(res => {
             //总数赋值给total
             total.value = res.totalCount
-            list.value = res.list
+            list.value = res.list.map(o => {
+                //加个属性，默认false
+                o.checked = false
+                //最终修改完返回对象
+                return o
+            })
         }).finally(() => {
             loading.value = false
         })
@@ -70,16 +75,32 @@ const loadData = (id) => {
 
 //上传图片
 const drawer = ref(false)
-const openUploadFile = ()=>drawer.value = true
+const openUploadFile = () => drawer.value = true
 
+//上传成功
+const handlUploadSuccess = () => getData(1)
+
+defineProps({
+    openChoose: {
+        type: Boolean,
+        default: false
+    }
+})
+//选中的图片
+const emit = defineEmits(["choose"])
+const checkedImage = computed(() => list.value.filter(o => o.checked))
+const handleChooseChange = (item) => {
+    if (item.checked && checkedImage.value.length > 1) {
+        item.checked = false
+        return toast("通知", "最多只能选中一张", "error")
+    }
+    emit("choose", checkedImage.value)
+}
 // 暴露方法给ImageAside，根据分类id加载图片列表
 defineExpose({
     loadData,
     openUploadFile
 })
-//上传成功
-const handlUploadSuccess=()=>getData(1)
-
 </script>
 <template>
     <el-main class="image-main" v-loading="loading">
@@ -87,7 +108,8 @@ const handlUploadSuccess=()=>getData(1)
 
             <el-row :gutter="10">
                 <el-col :span="6" v-for="(item,index) in list" :key="index">
-                    <el-card shadow="hover" class="relative mb-3" :body-style="{'padding':0}">
+                    <el-card shadow="hover" class="relative mb-3" :body-style="{'padding':0}"
+                        :class="{' border-green-500':item.checked }">
                         <el-image :src="item.url" fit="cover" class="h-[150px]" style="width: 100%; "
                             :preview-src-list="[item.url]" :initial-index="0"></el-image>
                         <!-- fit="cover" 图片覆盖-->
@@ -95,11 +117,14 @@ const handlUploadSuccess=()=>getData(1)
                             {{item.name}}
                         </div>
                         <div class="flex items-center justify-center p-2">
+                            <el-checkbox v-if="openChoose"  v-model="item.checked"
+                                @change="handleChooseChange(item)" />
+
                             <el-button type="primary" size="small" text @click="handleEdit(item)">重命名</el-button>
                             <el-popconfirm title="是否要删除该图片？" confirmButtonText="确认" cancelButtonText="取消"
                                 @confirm="handleDelete(item.id)">
                                 <template #reference>
-                                    <el-button type="primary" size="small" text>删除</el-button>
+                                    <el-button class="!m-0" type="primary" size="small" text>删除</el-button>
                                 </template>
                             </el-popconfirm>
                         </div>
@@ -116,7 +141,7 @@ const handlUploadSuccess=()=>getData(1)
         </div>
     </el-main>
     <el-drawer v-model="drawer" title="上传图片">
-        <UploadFile :data="{image_class_id}" @success="handlUploadSuccess"/>
+        <UploadFile :data="{image_class_id}" @success="handlUploadSuccess" />
     </el-drawer>
 </template>
 

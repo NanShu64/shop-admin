@@ -8,6 +8,7 @@ import {
     updateManagerStatus
 } from "@/api/manager.js"
 import FormDrawer from '@/components/FormDrawer.vue';
+import ChooseImage from '@/components/ChooseImage.vue';
 import { toast } from '@/composables/util';
 
 const searchForm = reactive({
@@ -27,6 +28,8 @@ const currentPage = ref(1)
 const total = ref(0)
 // 每页显示的条数
 const limit = ref(10)
+//定义一个空数值,保存角色列表数据
+const roles = ref([])
 //获取数据
 function getData(p) {
     if (typeof p == "number") {
@@ -44,6 +47,7 @@ function getData(p) {
                 return o
             })
             total.value = res.totalCount
+            roles.value = res.roles
         }).finally(() => {
             loading.value = false
         })
@@ -56,8 +60,12 @@ const formDrawerRef = ref(null)
 const formRef = ref(null)
 //
 const form = reactive({
-    title: "",
-    content: ""
+    username: "",
+    password: "",
+    role_id: null,
+    status: "",
+    avatar: ""
+
 })
 //验证规则
 const rules = {
@@ -117,8 +125,11 @@ const handleCreate = () => {
     editId.value = 0
     //定义初始值
     resetForm({
-        title: "",
-        content: ""
+        username: "",
+        password: "",
+        role_id: null,
+        status: "",
+        avatar: ""
     })
     formDrawerRef.value.open()
 }
@@ -196,7 +207,7 @@ const handleEdit = (row) => {
                 <template #default="{ row }">
                     <div class="flex items-center ">
                         <el-avatar :size="40" :src="row.avatar">
-                            <img src="" />
+                            <img src="https://cube.elemecdn.com/e/fd/0fc7d20532fdaf769a25683617711png.png" />
                         </el-avatar>
                         <div class="ml-3">
                             <h6>
@@ -239,40 +250,34 @@ const handleEdit = (row) => {
                 </template>
             </el-table-column>
         </el-table>
+
         <div class="flex items-center justify-center mt-5">
             <el-pagination background layout="prev,pager,next" :total="total" :current-page="currentPage"
                 :page-size="limit" @current-change="getData" />
         </div>
 
         <FormDrawer ref="formDrawerRef" :title="drawerTitle" @submit="handleSubmit">
-            <el-form ref="formRef" :model="form" :rules="rules" status-icon label-width="80px" :inline="false">
-                <el-form-item label="用户名" prop="title">
+            <el-form ref="formRef" :model="form" status-icon label-width="80px" :inline="false">
+                <el-form-item label="用户名" prop="username">
                     <!-- 用了:rules="rules"验证规则，需要声明哪个字段 prop="title" -->
-                    <el-input v-model="form.title" placeholder="用户名" />
+                    <el-input v-model="form.username" placeholder="用户名" />
                 </el-form-item>
                 <el-form-item label="密码" prop="password">
-                    <el-input v-model="form.password" placeholder="密码" type="textarea" :rows="5" />
+                    <el-input v-model="form.password" placeholder="密码" />
                     <!-- :rows="5" 显示5列 -->
                 </el-form-item>
-                <el-form-item label="头像" prop="content">
-                    <el-upload class="avatar-uploader"
-                        action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15" :show-file-list="false"
-                        :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
-                        <img v-if="imageUrl" :src="imageUrl" class="avatar" />
-                        <el-icon v-else class="avatar-uploader-icon">
-                            <Plus />
-                        </el-icon>
-                    </el-upload>
-                    <el-input v-model="form.content" placeholder="头像" type="textarea" :rows="5" />
-                    <!-- :rows="5" 显示5列 -->
+                <el-form-item label="头像" prop="avatar">
+                    <ChooseImage v-model="form.avatar" />
                 </el-form-item>
-                <el-form-item label="所属角色" prop="content">
-                    <el-input v-model="form.content" placeholder="公告内容" type="textarea" :rows="5" />
-                    <!-- :rows="5" 显示5列 -->
+                <el-form-item label="所属角色" prop="role_id">
+                    <el-select v-model="form.role_id" placeholder="选择所属角色">
+                        <el-option v-for="item in roles" :key="item.id" :label="item.name" :value="item.id">
+                        </el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="状态" prop="content">
-                    <el-input v-model="form.content" placeholder="公告内容" type="textarea" :rows="5" />
-                    <!-- :rows="5" 显示5列 -->
+                    <el-switch v-model="form.status" :active-value="1" :inactive-value="0">
+                    </el-switch>
                 </el-form-item>
             </el-form>
         </FormDrawer>
