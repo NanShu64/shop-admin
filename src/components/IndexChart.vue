@@ -28,9 +28,8 @@ var myChart = null
 //默认为null，在onMounted() 中赋值
 onMounted(() => {
     var chartDom = document.getElementById('chart');
-    if(chartDom ){
+    if (chartDom) {
         myChart = echarts.init(chartDom);
-
         getData()
     }
 })
@@ -83,7 +82,7 @@ useResizeObserver(el, (entries) => myChart.resize())
                 <span class=" text-sm">订单统计</span>
                 <div>
                     <el-check-tag v-for="(item,index) in options" :key="index" :checked="current == item.value"
-                     stype="margin-right: 8px" @click="handleChoose(item.value)">{{ item.text }}</el-check-tag>
+                        stype="margin-right: 8px" @click="handleChoose(item.value)">{{ item.text }}</el-check-tag>
                 </div>
             </div>
         </template>
