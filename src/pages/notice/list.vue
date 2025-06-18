@@ -18,7 +18,7 @@ const {
   handleDelete
 } = useInitTable({
   getList: getNoticeList,
-  delete:deleteNotice
+  delete: deleteNotice
 })
 const {
   formDrawerRef,
@@ -44,11 +44,12 @@ const {
       required: true,
       message: '公告内容不能为空',
       trigger: 'blur'
-    }],
-    getData,
-    update: updateNotice,
-    create: createNotice
-  }
+    }]
+  },
+  getData,
+  update: updateNotice,
+  create: createNotice
+
 })
 </script>
 <template>
