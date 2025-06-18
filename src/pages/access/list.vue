@@ -26,6 +26,7 @@ const {
     onGetListSuccess: (res) => {
         options.value = res.rules
         tableData.value = res.list
+        //拿到列表数据拿到一级节点的id赋值给defaultExpandedKeys.value
         defaultExpandedKeys.value = res.list.map(o => o.id)
     },
     delete: deleteRule,
@@ -75,7 +76,7 @@ const addChild = (id) => {
         <el-tree :data="tableData" :props="{ label:'name',children:'child' }" v-loading="loading" node-key="id"
             :default-expanded-keys="defaultExpandedKeys">
             <template #default="{ node, data }">
-
+                <!-- :default-expanded-keys="defaultExpandedKeys" 默认展开的节点 -->
                 <div class="custom-tree-node">
                     <el-tag size="small" :type="data.menu ? '' : 'info'">{{ data.menu ? "菜单" : "权限" }}</el-tag>
                     <el-icon v-if="data.icon" :size="16" class="ml-2">

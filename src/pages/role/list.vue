@@ -5,11 +5,16 @@ import {
     updateRole,
     deleteRole,
     updateRoleStatus,
+    setRoleRules
 } from "@/api/role"
+import {
+    getRuleList
+} from "@/api/rule"
 import FormDrawer from '@/components/FormDrawer.vue';
 import ListHeader from '@/components/ListHeader.vue';
 import { useInitTable, useInitForm } from '@/composables/useCommon.js'
 import { ref } from "vue";
+import { toast } from "@/composables/util";
 
 const {
     tableData,
@@ -55,26 +60,64 @@ const {
 //绑定动态节点
 const setRuleFormDrawerRef = ref(null)
 const ruleList = ref(null)
+//定义空数组
+const defaultExpandedKeys = ref([])
 //权限配置抽屉默认高度
 const treeHeight = ref(0)
 const roleId = ref(0)
+//选中的节点
+const elTreeRef = ref(null)
+// 当前角色拥有的权限ID=默认选中的节点
+const ruleIds = ref([])
+
+//默认父子关联
+const checkStrictly = ref(false)
 const openSetRule = (row) => {
     //等于当前对象id
     roleId.value = row.id
     //权限配置抽屉高度=浏览器可视内容高度-170
-    treeHeight.value = window.innerHeight - 170
+    treeHeight.value = window.innerHeight - 180
+    //拿到数据后，设置默认数据后，再父子关联
+    checkStrictly.value = true
+
 
     // 传第一页数据
-    getRoleList(1).then(res => {
+    getRuleList(1).then(res => {
+        // roleId.value = row.id
         //拿到对应数据
         ruleList.value = res.list
+        //拿到列表数据拿到一级节点的id赋值给defaultExpandedKeys.value
+        defaultExpandedKeys.value = res.list.map(o => o.id)
         //拿完数据之后打开弹框
         setRuleFormDrawerRef.value.open()
+        // 打开弹框之后，获取当前角色拥有的权限ID
+        ruleIds.value = row.rules.map(o => o.id)
+        setTimeout(() => {
+            elTreeRef.value.setCheckedKeys(ruleIds.value)
+            //父子关联
+            checkStrictly.value = false
+        }, 150);
     })
 }
 //配置权限方法
 const handleSetRuleSubmit = () => {
-
+    //打开弹框
+    setRuleFormDrawerRef.value.showLoading()
+    setRoleRules(roleId.value, ruleIds.value).then(res => {
+        // 提示
+        toast("通知", "配置成功", "success")
+        //刷新页面数据
+        getData()
+        //关闭弹框
+        setRuleFormDrawerRef.value.close()
+    }).finally(() => {
+        setRuleFormDrawerRef.value.hideLoading()
+    })
+}
+const handleTreeCheck = (...e) => {
+    //将checkedKeys, halfCheckKeys解构出来
+    const { checkedKeys, halfCheckedKeys } = e[1]
+    ruleIds.value = [...checkedKeys, ...halfCheckedKeys]
 }
 
 </script>
@@ -131,15 +174,15 @@ const handleSetRuleSubmit = () => {
 
         <!-- 权限配置 -->
         <FormDrawer ref="setRuleFormDrawerRef" title="权限配置" @submit="handleSetRuleSubmit">
-            <el-tree-v2 :data="ruleList" :props="{ label:'name',children:'child' }" v-loading="loading" node-key="id"
-                :default-expanded-keys="defaultExpandedKeys" show-checkbox :height="treeHeight">
-                <template #default="{ node, data }">
-                    <div class="custom-tree-node">
-                        <el-tag size="small" :type="data.menu ? '' : 'info'">{{ data.menu ? "菜单" : "权限" }}</el-tag>
-                        <el-icon v-if="data.icon" :size="16" class="ml-2">
-                            <component :is="data.icon" />
-                        </el-icon>
-                        <span>{{ data.name }}</span>
+            <el-tree-v2 ref="elTreeRef" node-key="id" :default-expanded-keys="defaultExpandedKeys" :data="ruleList"
+                :props="{ label:'name',children:'child' }" show-checkbox :height="treeHeight" @check="handleTreeCheck"
+                :check-strictly="checkStrictly">
+                <template #default="{ node,data }">
+                    <div class="flex items-center">
+                        <el-tag :type="data.menu ? '' : 'info'" size="small">
+                            {{ data.menu ? "菜单" : "权限" }}
+                        </el-tag>
+                        <span class="ml-2 text-sm"> {{ data.name }} </span>
                     </div>
                 </template>
             </el-tree-v2>
