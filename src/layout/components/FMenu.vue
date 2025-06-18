@@ -1,7 +1,7 @@
 <script setup>
-import { useRouter,useRoute } from 'vue-router';
+import { useRouter, useRoute, onBeforeRouteUpdate } from 'vue-router';
 import { useStore } from "vuex"
-import { computed,ref } from 'vue';
+import { computed, ref } from 'vue';
 const router = useRouter()
 const route = useRoute()
 const store = useStore()
@@ -15,7 +15,10 @@ const handleSelect = (e) => {
 const isCollapse = computed(() => !(store.state.asideWidth == '250px'))
 //默认选中,页面加载时默认激活菜单的 index ,route.path当前路由路径
 const defaultActive = ref(route.path)
-
+//组件守卫,联动标签与菜单
+onBeforeRouteUpdate ((to, from) => {
+  defaultActive.value = to.path
+})
 </script>
 <template>
   <div class="f-menu" :style="{ width:$store.state.asideWidth }">
@@ -61,8 +64,9 @@ const defaultActive = ref(route.path)
   overflow-x: hidden;
   @apply shadow-md fixed bg-light-50;
 }
+
 /* 去除滚动条 */
-.f-menu::-webkit-scrollbar{
-    width: 0px;
+.f-menu::-webkit-scrollbar {
+  width: 0px;
 }
 </style>
