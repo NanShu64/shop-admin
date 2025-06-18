@@ -104,7 +104,7 @@ const {
         </el-form>
 
         <!-- 新增|刷新 -->
-        <ListHeader @create="handleCreate" @refresh="getData"/>
+        <ListHeader @create="handleCreate" @refresh="getData" />
 
         <el-table :data="tableData" stripe style="width: 100%;" v-loading="loading">
             <el-table-column label="管理员" width="200">
@@ -130,7 +130,7 @@ const {
                     <!-- row.role.name : ''可以简写成 .name|| "-" -->
                 </template>
             </el-table-column>
-            <el-table-column prop="create_time" label="状态" width="120" align="center">
+            <el-table-column label="状态" width="120" align="center">
                 <template #default="{ row }">
                     <el-switch :modelValue="row.status" :active-value="1" :inactive-value="0"
                         :loading="row.statusLoading" :disabled="row.super == 1"

@@ -16,6 +16,8 @@ import SettingBase from '@/pages/setting/base.vue'
 import CouponList from '@/pages/coupon/list.vue'
 import ManagerList from '@/pages/manager/list.vue'
 import AccessList from '@/pages/access/list.vue'
+import RoleList from '@/pages/role/list.vue'
+
 //默认路由所有用户共享
 const routes = [{
     path: "/", // http://localhost:5173
@@ -122,22 +124,22 @@ const asyncRoutes = [{
         title: "管理员管理"
     }
 }
-        , {
-        path: "/access/list",
-        name: "/access/list",
-        component: AccessList,
-        meta: {
-            title: "权限管理"
-        }
+    , {
+    path: "/access/list",
+    name: "/access/list",
+    component: AccessList,
+    meta: {
+        title: "权限管理"
     }
-    //     , {
-    //     path: "/manager/list",
-    //     name: "/manager/list",
-    //     component: managerList,
-    //     meta: {
-    //         title: "角色管理"
-    //     }
-    // }
+}
+    , {
+    path: "/role/list",
+    name: "/role/list",
+    component: RoleList,
+    meta: {
+        title: "角色管理"
+    }
+}
 ]
 export const router = createRouter({
     //使用url的#符号之后的部分模拟url路径的变化,因为不会触发页面刷新,所以不需要服务端支持
