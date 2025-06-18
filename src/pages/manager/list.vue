@@ -8,6 +8,7 @@ import {
     updateManagerStatus
 } from "@/api/manager.js"
 import FormDrawer from '@/components/FormDrawer.vue';
+import ListHeader from '@/components/ListHeader.vue';
 import ChooseImage from '@/components/ChooseImage.vue';
 import { useInitTable, useInitForm } from '@/composables/useCommon.js'
 //定义一个空数值,保存角色列表数据
@@ -82,10 +83,6 @@ const {
     }
 })
 
-
-
-
-
 </script>
 <template>
     <el-card shadow="never" class="border-0">
@@ -107,16 +104,8 @@ const {
         </el-form>
 
         <!-- 新增|刷新 -->
-        <div class="flex items-center justify-between mb-4">
-            <el-button type="primary" size="small" @click="handleCreate">新增</el-button>
-            <el-tooltip effect="dark" content="刷新数据" placement="top">
-                <el-button text @click="getData">
-                    <el-icon :size="20">
-                        <Refresh />
-                    </el-icon>
-                </el-button>
-            </el-tooltip>
-        </div>
+        <ListHeader @create="handleCreate" @refresh="getData"/>
+
         <el-table :data="tableData" stripe style="width: 100%;" v-loading="loading">
             <el-table-column label="管理员" width="200">
                 <template #default="{ row }">

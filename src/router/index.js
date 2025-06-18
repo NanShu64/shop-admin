@@ -15,7 +15,7 @@ import NoticeList from '@/pages/notice/list.vue'
 import SettingBase from '@/pages/setting/base.vue'
 import CouponList from '@/pages/coupon/list.vue'
 import ManagerList from '@/pages/manager/list.vue'
-
+import AccessList from '@/pages/access/list.vue'
 //默认路由所有用户共享
 const routes = [{
     path: "/", // http://localhost:5173
@@ -122,14 +122,14 @@ const asyncRoutes = [{
         title: "管理员管理"
     }
 }
-    //     , {
-    //     path: "/manager/list",
-    //     name: "/manager/list",
-    //     component: managerList,
-    //     meta: {
-    //         title: "权限管理"
-    //     }
-    // }
+        , {
+        path: "/access/list",
+        name: "/access/list",
+        component: AccessList,
+        meta: {
+            title: "权限管理"
+        }
+    }
     //     , {
     //     path: "/manager/list",
     //     name: "/manager/list",
