@@ -32,8 +32,8 @@ const defaultExpandedkeys = ref([])
 </script>
 <template>
     <el-card shadow="never" class="border-0">
-        <!-- 新增|刷新 @create="handleCreate" -->
-        <ListHeader @refresh="getData" />
+        <!-- 新增|刷新  -->
+        <ListHeader @create="handleCreate" @refresh="getData" />
         <el-tree :data="tableData" :props="{lable:'name',children='child'}" v-loading="loading" node-key="id"
             :default-expanded-keys="defaultExpandedKeys" />
     </el-card>
