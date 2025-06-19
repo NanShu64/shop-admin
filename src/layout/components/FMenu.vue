@@ -6,7 +6,7 @@ const router = useRouter()
 const route = useRoute()
 const store = useStore()
 
-const asideMenus = computed(() => store.state.menus)
+const asideMenus = computed(()=>store.state.menus)
 
 const handleSelect = (e) => {
   router.push(e)
@@ -15,8 +15,8 @@ const handleSelect = (e) => {
 const isCollapse = computed(() => !(store.state.asideWidth == '250px'))
 //默认选中,页面加载时默认激活菜单的 index ,route.path当前路由路径
 const defaultActive = ref(route.path)
-//组件守卫,联动标签与菜单
-onBeforeRouteUpdate ((to, from) => {
+//组件守卫,联动标签与菜单, 监听路由变化
+onBeforeRouteUpdate((to, from) => {
   defaultActive.value = to.path
 })
 </script>

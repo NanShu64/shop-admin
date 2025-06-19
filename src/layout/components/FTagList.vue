@@ -1,5 +1,5 @@
 <script setup>
-import { useTabList } from '@/composables/useTabList'
+import { useTabList } from "@/composables/useTabList.js"
 
 const {
     activeTab,
@@ -8,7 +8,6 @@ const {
     removeTab,
     handleClose
 } = useTabList()
-
 </script>
 <template>
     <div class="f-tag-list" :style="{ left:$store.state.asideWidth }">
@@ -16,10 +15,12 @@ const {
         <el-tabs v-model="activeTab" type="card" class="flex-1" @tab-remove="removeTab" style="min-width:100px;"
             @tab-change="changeTab">
             <el-tab-pane v-for="item in tabList" :key="item.path" :label="item.title" :name="item.path"
-                :closable="item.path != '/'"></el-tab-pane>
+                :closable="item.path != '/'">
+                <!-- 首页保护：意味着当标签的路径是首页（即路径为`'/'`）时，`closable`为`false`，因此首页标签的关闭按钮不会显示，用户也就无法关闭首页标签 -->
+            </el-tab-pane>
         </el-tabs>
 
-        <span class=" tag-btn">
+        <span class="tag-btn">
             <el-dropdown @command="handleClose">
                 <span class="el-dropdown-link">
                     <el-icon>
