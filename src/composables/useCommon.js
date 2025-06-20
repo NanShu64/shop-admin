@@ -144,8 +144,15 @@ export function useInitForm(opt = {}) {
             //如果valid=false,就终止
             //提交按钮处于loading状态
             formDrawerRef.value.showLoading()
+            //判断
+            let body = []
+            if (opt.beforeSubmit && typeof opt.beforeSubmit == "function") {
+                body = opt.beforeSubmit({ ...form })
+            } else {
+                body = form
+            }
             //修改或新增
-            const fun = editId.value ? opt.update(editId.value, form) : opt.create(form)
+            const fun = editId.value ? opt.update(editId.value, body) : opt.create(body)
             //传入name和order它们等于form
             fun.then(res => {
                 //提示提交成功
