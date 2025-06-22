@@ -1,5 +1,5 @@
 import axios from "@/axios";
-
+import { queryParams } from "@/composables/util";
 export function login(username, password) {
     return axios.post("/admin/login", {
         username,
@@ -20,14 +20,8 @@ export function updatepassword(data) {
 }
 
 export function getManagerList(page, query = {}) {
-    let q = []
-    for (const key in query) {
-        if (query[key]) {
-            q.push(`${key}=${encodeURIComponent(query[key])}`)
-        }
-    }
-    let r = q.join("&")
-    r = r ? ("?" + r) : ""
+    //将对象转成url需要传递的参数，然后拼接
+    let r = queryParams(query)
     return axios.get(`/admin/manager/${page}${r}`)
 }
 export function updateManagerStatus(id, status) {
