@@ -144,7 +144,7 @@ const handleChange = (value) => {
                         <el-image class="mr-3 rounded" :src="row.cover" fit="cover" :lazy="true"
                             style="width: 50px; height: 50px;">
                         </el-image>
-                      
+
                         <div class="flex-1">
                             <p>
                                 {{ row.title }}
@@ -178,7 +178,7 @@ const handleChange = (value) => {
                     </el-tag>
                 </template>
             </el-table-column>
-            <el-table-column label="审核状态" width="120" align="center">
+            <el-table-column v-if="searchForm.tab != 'delete'" label="审核状态" width="120" align="center">
                 <template #default="{ row }">
                     <div class="flex  flex-col" v-if="row.ischeck == 0">
                         <el-button type="success" size="samll" plain @click="">审核通过</el-button>
@@ -191,7 +191,7 @@ const handleChange = (value) => {
             </el-table-column>
             <el-table-column label="操作" align="center">
                 <template #default="scope">
-                    <div>
+                    <div v-if="searchForm.tab != 'delete'">
                         <el-button class="px-1" type="primary" size="small" text
                             @click="handleEdit(scope.row)">修改</el-button>
                         <el-button class="px-1" type="primary" size="small" text @click="">商品规格</el-button>
@@ -204,6 +204,7 @@ const handleChange = (value) => {
                             </template>
                         </el-popconfirm>
                     </div>
+                    <span v-else>暂无操作</span>
                 </template>
             </el-table-column>
         </el-table>
