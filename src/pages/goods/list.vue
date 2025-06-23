@@ -27,7 +27,11 @@ const {
     limit,
     getData,
     handleDelete,
-    handleStatusChange
+    handleStatusChange,
+    multipleTableRef,
+    handleSelectionChange,
+    handleMultiDelete,
+    handleMultiStatusChange 
 } = useInitTable({
     searchForm: {
         title: "",
@@ -57,7 +61,8 @@ const {
     drawerTitle,
     handleSubmit,
     handleCreate,
-    handleEdit
+    handleEdit,
+    
 } = useInitForm({
 
     form: {
@@ -144,9 +149,13 @@ const showSearch = ref(false)
         </Search>
 
         <!-- 新增|刷新 -->
-        <ListHeader layout="create,refresh" @create="handleCreate" @refresh="getData" />
+        <ListHeader layout="create,refresh,delete" @create="handleCreate" @refresh="getData" @delete="handleMultiDelete">
+           
+            <el-button  size="small" @click="handleMultiStatusChange(1) " v-if="searchForm.tab=='all' ||searchForm.tab=='off'">上架</el-button>
+            <el-button  size="small" @click="handleMultiStatusChange(0) " v-if="searchForm.tab=='all' ||searchForm.tab=='saling'">下架</el-button>
+        </ListHeader>
 
-        <el-table red="multipleTableRef" @selection-change="handleSelectionChange" :data="tableData" stripe
+        <el-table ref="multipleTableRef" @selection-change="handleSelectionChange" :data="tableData" stripe
             style="width: 100%;" v-loading="loading">
             <el-table-column type="selection" :selectable="selectable" width="55" />
             <el-table-column label="商品" width="300">
@@ -194,7 +203,7 @@ const showSearch = ref(false)
                         <el-button type="success" size="samll" plain @click="">审核通过</el-button>
                         <el-button class="mt-2 !ml-0" type="danger" size="samll" plain @click="">审核拒绝</el-button>
                     </div>
-                    <span v-else>{{ row.isCheck== 1 ? '通过':'拒绝' }}</span>
+                    <span v-else>{{ row.ischeck == 1 ? '通过' : '拒绝' }}</span>
                 </template>
             </el-table-column>
             <el-table-column prop="stock" label="总库存" align="center" width="90">
