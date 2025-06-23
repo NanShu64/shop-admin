@@ -80,19 +80,23 @@ const openUploadFile = () => drawer.value = true
 //上传成功
 const handlUploadSuccess = () => getData(1)
 
-defineProps({
+const props = defineProps({
     openChoose: {
         type: Boolean,
         default: false
+    },
+    limit: {
+        type: Number,
+        default: 1
     }
 })
 //选中的图片
 const emit = defineEmits(["choose"])
 const checkedImage = computed(() => list.value.filter(o => o.checked))
 const handleChooseChange = (item) => {
-    if (item.checked && checkedImage.value.length > 1) {
+    if (item.checked && checkedImage.value.length >props.limit) {
         item.checked = false
-        return toast("通知", "最多只能选中一张", "error")
+        return toast("通知", '最多只能选中${ props.limit }张', "error")
     }
     emit("choose", checkedImage.value)
 }
@@ -117,8 +121,7 @@ defineExpose({
                             {{item.name}}
                         </div>
                         <div class="flex items-center justify-center p-2">
-                            <el-checkbox v-if="openChoose"  v-model="item.checked"
-                                @change="handleChooseChange(item)" />
+                            <el-checkbox v-if="props.openChoose" v-model="item.checked" @change="handleChooseChange(item)" />
 
                             <el-button type="primary" size="small" text @click="handleEdit(item)">重命名</el-button>
                             <el-popconfirm title="是否要删除该图片？" confirmButtonText="确认" cancelButtonText="取消"

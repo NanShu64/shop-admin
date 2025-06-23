@@ -13,6 +13,7 @@ import ListHeader from '@/components/ListHeader.vue';
 import ChooseImage from '@/components/ChooseImage.vue';
 import Search from '@/components/Search.vue';
 import SearchItem from '@/components/SearchItem.vue';
+import banners from './banners.vue';
 import { useInitTable, useInitForm } from '@/composables/useCommon.js'
 
 //定义一个空数值,保存角色列表数据
@@ -31,7 +32,7 @@ const {
     multipleTableRef,
     handleSelectionChange,
     handleMultiDelete,
-    handleMultiStatusChange 
+    handleMultiStatusChange
 } = useInitTable({
     searchForm: {
         title: "",
@@ -42,7 +43,7 @@ const {
     onGetListSuccess: (res) => {
         //总数赋值给total
         tableData.value = res.list.map(o => {
-            o.statusLoading = false
+            o.bannersLoading = false
             //修改loading状态
             return o
         })
@@ -62,7 +63,7 @@ const {
     handleSubmit,
     handleCreate,
     handleEdit,
-    
+
 } = useInitForm({
 
     form: {
@@ -126,7 +127,11 @@ const handleChange = (value) => {
 const category_list = ref([])
 getCategoryList().then(res => category_list.value = res)
 
-const showSearch = ref(false)
+
+//设置轮播图相关方法
+const bannersRef = ref(null)
+const handleSetGoodsBanners = (row) => bannersRef.value.open(row)
+
 </script>
 <template>
     <el-tabs v-model="searchForm.tab" @tab-change="getData">
@@ -149,15 +154,17 @@ const showSearch = ref(false)
         </Search>
 
         <!-- 新增|刷新 -->
-        <ListHeader layout="create,refresh,delete" @create="handleCreate" @refresh="getData" @delete="handleMultiDelete">
-           
-            <el-button  size="small" @click="handleMultiStatusChange(1) " v-if="searchForm.tab=='all' ||searchForm.tab=='off'">上架</el-button>
-            <el-button  size="small" @click="handleMultiStatusChange(0) " v-if="searchForm.tab=='all' ||searchForm.tab=='saling'">下架</el-button>
+        <ListHeader layout="create,refresh,delete" @create="handleCreate" @refresh="getData"
+            @delete="handleMultiDelete">
+            <el-button size="small" @click="handleMultiStatusChange(1) "
+                v-if="searchForm.tab=='all' ||searchForm.tab=='off'">上架</el-button>
+            <el-button size="small" @click="handleMultiStatusChange(0) "
+                v-if="searchForm.tab=='all' ||searchForm.tab=='saling'">下架</el-button>
         </ListHeader>
 
         <el-table ref="multipleTableRef" @selection-change="handleSelectionChange" :data="tableData" stripe
             style="width: 100%;" v-loading="loading">
-            <el-table-column type="selection" :selectable="selectable" width="55" />
+            <el-table-column type="selection" width="55" />
             <el-table-column label="商品" width="300">
                 <template #default="{ row }">
                     <div class="flex">
@@ -214,7 +221,9 @@ const showSearch = ref(false)
                         <el-button class="px-1" type="primary" size="small" text
                             @click="handleEdit(scope.row)">修改</el-button>
                         <el-button class="px-1" type="primary" size="small" text @click="">商品规格</el-button>
-                        <el-button class="px-1" type="primary" size="small" text @click="">设置轮播图</el-button>
+                        <el-button class="px-1" :type="scope.row.goods_banner.length == 0 ? 'danger' : 'primary'"
+                            size="small" text @click="handleSetGoodsBanners(scope.row)"
+                            :loading="scope.row.bannersLoading">设置轮播图</el-button>
                         <el-button class="px-1" type="primary" size="small" text @click="">商品详情</el-button>
                         <el-popconfirm title="是否要删除该商品？" confirmButtonText="确认" cancelButtonText="取消"
                             @confirm="handleDelete(scope.row.id)">
@@ -284,5 +293,5 @@ const showSearch = ref(false)
             </el-form>
         </FormDrawer>
     </el-card>
-
+    <banners ref="bannersRef" @reload-data="getData" />
 </template>
