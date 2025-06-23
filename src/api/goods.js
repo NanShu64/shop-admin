@@ -18,12 +18,8 @@ export function createGoods(data) {
 export function deleteGoods(id) {
     return axios.post(`/admin/goods/${id}/delete`)
 }
-export function updateGoods(ids) {
-    return axios.post(`/admin/goods/delete_all`,
-        {
-            ids
-        }
-    )
+export function updateGoods(id,data){
+    return axios.post(`/admin/goods/${id}`,data)
 }
 
 
