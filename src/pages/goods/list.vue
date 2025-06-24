@@ -14,6 +14,7 @@ import ChooseImage from '@/components/ChooseImage.vue';
 import Search from '@/components/Search.vue';
 import SearchItem from '@/components/SearchItem.vue';
 import banners from './banners.vue';
+import content from './content.vue';
 import { useInitTable, useInitForm } from '@/composables/useCommon.js'
 
 //定义一个空数值,保存角色列表数据
@@ -44,6 +45,7 @@ const {
         //总数赋值给total
         tableData.value = res.list.map(o => {
             o.bannersLoading = false
+            o.contentLoading = false
             //修改loading状态
             return o
         })
@@ -131,7 +133,9 @@ getCategoryList().then(res => category_list.value = res)
 //设置轮播图相关方法
 const bannersRef = ref(null)
 const handleSetGoodsBanners = (row) => bannersRef.value.open(row)
-
+///设置商品相关方法
+const contentRef = ref(null)
+const handleSetGoodsContent = (row) => contentRef.value.open(row)
 </script>
 <template>
     <el-tabs v-model="searchForm.tab" @tab-change="getData">
@@ -220,11 +224,14 @@ const handleSetGoodsBanners = (row) => bannersRef.value.open(row)
                     <div v-if="searchForm.tab != 'delete'">
                         <el-button class="px-1" type="primary" size="small" text
                             @click="handleEdit(scope.row)">修改</el-button>
-                        <el-button class="px-1" type="primary" size="small" text @click="">商品规格</el-button>
+                        <el-button class="px-1" :type="scope.row.goods_banner.length == 0 ? 'danger' : 'primary'"
+                            size="small" text @click="">商品规格</el-button>
                         <el-button class="px-1" :type="scope.row.goods_banner.length == 0 ? 'danger' : 'primary'"
                             size="small" text @click="handleSetGoodsBanners(scope.row)"
                             :loading="scope.row.bannersLoading">设置轮播图</el-button>
-                        <el-button class="px-1" type="primary" size="small" text @click="">商品详情</el-button>
+                        <el-button class="px-1" :type="!scope.row.content ? 'danger' : 'primary'" size="small" text
+                            @click="handleSetGoodsContent(scope.row)"
+                            :loading="scope.row.contentLoading">商品详情</el-button>
                         <el-popconfirm title="是否要删除该商品？" confirmButtonText="确认" cancelButtonText="取消"
                             @confirm="handleDelete(scope.row.id)">
                             <template #reference>
@@ -294,4 +301,5 @@ const handleSetGoodsBanners = (row) => bannersRef.value.open(row)
         </FormDrawer>
     </el-card>
     <banners ref="bannersRef" @reload-data="getData" />
+    <content ref="contentRef" @reload-data="getData" />
 </template>
