@@ -5,7 +5,8 @@ import {
     createGoods,
     deleteGoods,
     updateGoods,
-    updateGoodsStatus
+    updateGoodsStatus,
+    // updateGoodsSkus
 } from "@/api/goods.js"
 import { getCategoryList, } from "@/api/category.js"
 import FormDrawer from '@/components/FormDrawer.vue';
@@ -15,10 +16,9 @@ import Search from '@/components/Search.vue';
 import SearchItem from '@/components/SearchItem.vue';
 import banners from './banners.vue';
 import content from './content.vue';
+import skus from './skus.vue';
 import { useInitTable, useInitForm } from '@/composables/useCommon.js'
 
-//定义一个空数值,保存角色列表数据
-const roles = ref([])
 const {
     searchForm,
     resetSearchForm,
@@ -46,11 +46,11 @@ const {
         tableData.value = res.list.map(o => {
             o.bannersLoading = false
             o.contentLoading = false
+            o.skusLoading = false
             //修改loading状态
             return o
         })
         total.value = res.totalCount
-
     },
     delete: deleteGoods,
     updateStatus: updateGoodsStatus,
@@ -121,21 +121,18 @@ const tabbars = [{
     key: "delete",
     name: "回收站"
 }]
-const num = ref(1)
-const handleChange = (value) => {
-    console.log(value)
-}
 //商品分类
 const category_list = ref([])
 getCategoryList().then(res => category_list.value = res)
-
-
 //设置轮播图相关方法
 const bannersRef = ref(null)
 const handleSetGoodsBanners = (row) => bannersRef.value.open(row)
-///设置商品相关方法
+///设置商品详情相关方法
 const contentRef = ref(null)
 const handleSetGoodsContent = (row) => contentRef.value.open(row)
+// 设置商品规格相关方法
+const skusRef = ref(null)
+const handleSetGoodsSkus = (row) => skusRef.value.open(row)
 </script>
 <template>
     <el-tabs v-model="searchForm.tab" @tab-change="getData">
@@ -224,8 +221,8 @@ const handleSetGoodsContent = (row) => contentRef.value.open(row)
                     <div v-if="searchForm.tab != 'delete'">
                         <el-button class="px-1" type="primary" size="small" text
                             @click="handleEdit(scope.row)">修改</el-button>
-                        <el-button class="px-1" :type="scope.row.goods_banner.length == 0 ? 'danger' : 'primary'"
-                            size="small" text @click="">商品规格</el-button>
+                        <el-button class="px-1" type="primary" size="small" text :loading="scope.row.skusLoading"
+                            @click="handleSetGoodsSkus(scope.row)">商品规格</el-button>
                         <el-button class="px-1" :type="scope.row.goods_banner.length == 0 ? 'danger' : 'primary'"
                             size="small" text @click="handleSetGoodsBanners(scope.row)"
                             :loading="scope.row.bannersLoading">设置轮播图</el-button>
@@ -302,4 +299,5 @@ const handleSetGoodsContent = (row) => contentRef.value.open(row)
     </el-card>
     <banners ref="bannersRef" @reload-data="getData" />
     <content ref="contentRef" @reload-data="getData" />
+    <skus ref="skusRef" @reload-data="getData" />
 </template>
