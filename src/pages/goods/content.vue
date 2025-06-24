@@ -22,7 +22,7 @@ const open = (row) => {
     //按钮的loading状态
     row.contentLoading = true
     readGoods(goodsId.value).then(res => {
-        // 赋值初始化的值，拿到url组成一个一维数组
+        // 赋值初始化的值
         form.content = res.content
         //打开抽屉
         formDrawerRef.value.open()
@@ -33,7 +33,7 @@ const open = (row) => {
 // 刷新方法
 const emit = defineEmits(["reloadData"])
 const submit = () => {
-
+// 弹框节点显示
     formDrawerRef.value.showLoading()
     //id和对象
     updateGoods(goodsId.value, form)
@@ -45,6 +45,7 @@ const submit = () => {
             emit("reloadData")
         })
         .finally(() => {
+            // 隐藏
             formDrawerRef.value.hideLoading()
         })
 }

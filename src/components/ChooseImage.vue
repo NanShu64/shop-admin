@@ -5,13 +5,17 @@ import ImageMain from "@/components/ImageMain.vue"
 import { toast } from "@/composables/util"
 // 窗口默认关闭
 const dialogVisible = ref(false)
+//定义一个回调传值
+const callbackFunction = ref(null)
 //打开窗口
-const open = () => dialogVisible.value = true
+const open = (callback = null) => {
+    callbackFunction.value = callback
+    dialogVisible.value = true
+}
 //关闭窗口
 const close = () => dialogVisible.value = false
 const ImageAsideRef = ref(null)
 const handleOpenCreate = () => ImageAsideRef.value.handleCreate()
-// const uploadPictures = () =>
 
 const ImageMainRef = ref(null)
 const handleAsideChange = (image_class_id) => ImageMainRef.value.loadData(image_class_id)
@@ -22,6 +26,12 @@ const props = defineProps({
     limit: {
         type: Number,
         default: 1
+    },
+    preview: {
+        // 预览
+        type: Boolean,
+        default: true
+        // 默认显示+选择图片
     }
 })
 const emit = defineEmits(["update:modelValue"])
@@ -35,14 +45,19 @@ const submit = () => {
     if (props.limit == 1) {
         value = urls[0]
     } else {
-        value = [...props.modelValue, ...urls]
+        value = props.preview ? [...props.modelValue, ...urls] : [...urls]
         if (value.length > props.limit) {
-            return toast("通知","最多还能选择"+(props.limit-props.modelValue.length)+"张")
+            // 判断
+            let limit = props.preview ? (props.limit - props.modelValue.length) : props.limit
+            return toast("通知", "最多还能选择" + limit + "张")
         }
     }
     //首先判断长度
-    if (value) {
+    if (value && props.preview) {
         emit("update:modelValue", value)
+    } if (!props.preview && typeof callbackFunction.value === "function") {
+        //如果是回调函数则执行,传入选中的值
+        callbackFunction.value(value)
     }
     close()
 }
@@ -51,9 +66,13 @@ const removeImage = (url) => {
     //调用过滤方法
     emit("update:modelValue", props.modelValue.filter(u => u != url))
 }
+// 暴露
+defineExpose({
+    open
+})
 </script>
 <template>
-    <div v-if="modelValue">
+    <div v-if="modelValue && preview ">
         <el-image v-if="typeof modelValue == 'string'" :src="modelValue" fit="cover"
             class="w-[100px] h-[100px] rounded border mr-2"></el-image>
         <div v-else class="flex flex-wrap">
@@ -67,7 +86,7 @@ const removeImage = (url) => {
             </div>
         </div>
     </div>
-    <div class="choose-image-btn" @click="open">
+    <div v-if="preview" class="choose-image-btn" @click="open">
         <el-icon :size="25" class="text=gray-500">
             <Plus />
         </el-icon>

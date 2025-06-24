@@ -1,9 +1,7 @@
-<template>
-    <editor v-model="content" tag-name="div" :init="init" />
-</template>
 <script setup>
 import tinymce from "tinymce/tinymce";
 import Editor from "@tinymce/tinymce-vue";
+import ChooseImage from "@/components/ChooseImage.vue"
 import { ref, watch } from "vue"
 import "tinymce/themes/silver/theme"; // 引用主题文件
 import "tinymce/icons/default"; // 引用图标文件
@@ -43,11 +41,14 @@ import "tinymce/plugins/wordcount" // 字数统计插件
 const props = defineProps({
     modelValue: String,
 })
+//
+const ChooseImageRef = ref(null)
+
 const emit = defineEmits(["update:modelValue"])
-// 配置
+// 编辑器配置
 const init = {
-    language_url: '/tinymce/langs/zh-Hans.js', // 中文语言包路径
-    language: "zh-Hans",
+    language_url: "/tinymce/langs/zh_CN.js", // 中文语言包路径
+    language: "zh_CN",
     skin_url: '/tinymce/skins/ui/oxide', // 编辑器皮肤样式
     content_css: "/tinymce/skins/content/default/content.min.css",
     menubar: false, // 隐藏菜单栏
@@ -68,12 +69,25 @@ const init = {
     elementpath: false,
     resize: false, // 禁止改变大小
     statusbar: false, // 隐藏底部状态栏
-    setup:(editor)=>{
-        editor.ui.registry.addButton("imageUpload",{
-            tooltip:"插入图片",
-            icon:"image",
-            onAction(){
-                editor.insertContent(`<img src="http://tangzhe123-com.oss-cn-shenzhen.aliyuncs.com/public/62b040def287a.jpg" style="width:100%;"/>`)
+    // editor是当前编辑器的对象
+    setup: (editor) => {
+        //接收一个唯一的标识，第二个接收对象
+        editor.ui.registry.addButton("imageUpload", {
+            // 文字提示
+            tooltip: "插入图片",
+            // 提示图标，富文本提供image
+            icon: "image",
+            onAction() {
+                //拿到节点，调用open方法,传入回调
+                ChooseImageRef.value.open((data) => {
+                    //拿到选中图片的url
+                    data.forEach(url => {
+                        // 图片插入富文本编辑器
+                        editor.insertContent(`<img src="${url}" style="width:100%;"/>`)
+                    })
+                })
+                // 富文本提供editor.insertContent
+                // editor.insertContent(`<img src="http://tangzhe123-com.oss-cn-shenzhen.aliyuncs.com/public/62b040def287a.jpg" style="width:100%;"/>`)
             }
         })
     }
@@ -83,6 +97,10 @@ const content = ref(props.modelValue)
 watch(props, (newVal) => content.value = newVal.modelValue)
 watch(content, (newVal) => emit("update:modelValue", newVal))
 </script>
+<template>
+    <editor v-model="content" tag-name="div" :init="init" />
+    <ChooseImage :preview="false" ref="ChooseImageRef" :limit="9" />
+</template>
 <style>
 .tox-tinymce-aux {
     z-index: 9999 !important;
