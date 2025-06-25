@@ -1,11 +1,13 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import FormDrawer from '@/components/FormDrawer.vue';
+import SkuCard from './components/SkuCard.vue';
 import {
     readGoods,
     updateGoodsSkus
 } from "@/api/goods"
 import { toast } from "@/composables/util";
+import { goodsId,initSkuCardList} from '@/composables/useSku';
 
 const formDrawerRef = ref(null)
 
@@ -21,9 +23,8 @@ const form = reactive({
 })
 
 //记录商品ID
-const goodsId = ref(0)
 const open = (row) => {
-    // 将商品ID赋值给goodsId
+    // 将当前商品ID赋值给goodsId
     goodsId.value = row.id
     //按钮的loading状态
     row.skusLoading = true
@@ -38,6 +39,8 @@ const open = (row) => {
             "weight": 0,
             "volume": 0
         }
+        //调用，传当前整个对象
+        initSkuCardList(res)
         //打开抽屉
         formDrawerRef.value.open()
     }).finally(() => {
@@ -105,11 +108,10 @@ defineExpose({
                 </el-form-item>
             </template>
             <template v-else>
-                多规格
+                <SkuCard />
             </template>
         </el-form>
     </FormDrawer>
-
 </template>
 
 
