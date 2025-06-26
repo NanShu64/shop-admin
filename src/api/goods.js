@@ -19,22 +19,25 @@ export function createGoods(data) {
 export function deleteGoods(id) {
     return axios.post(`/admin/goods/${id}/delete`)
 }
-export function updateGoods(id,data){
-    return axios.post(`/admin/goods/${id}`,data)
+export function updateGoods(id, data) {
+    return axios.post(`/admin/goods/${id}`, data)
 }
 
-export function readGoods(id){
+export function readGoods(id) {
     return axios.get(`/admin/goods/read/${id}`)
 }
-export function setGoodsBanner(id,data){
-    return axios.post(`/admin/goods/banners/${id}`,data)
+export function setGoodsBanner(id, data) {
+    return axios.post(`/admin/goods/banners/${id}`, data)
 }
-export function updateGoodsSkus(id,data){
-    return axios.post(`/admin/goods/updateskus/${id}`,data)
+export function updateGoodsSkus(id, data) {
+    return axios.post(`/admin/goods/updateskus/${id}`, data)
 }
-export function createGoodsSkusCard(data){
-    return axios.post(`/admin/goods_skus_card`,data)
+export function createGoodsSkusCard(data) {
+    return axios.post(`/admin/goods_skus_card`, data)
 }
-export function updateGoodsSkusCard(id,data){
-    return axios.post(`/admin/goods_skus_card/${id}`,data)
+export function updateGoodsSkusCard(id, data) {
+    return axios.post(`/admin/goods_skus_card/${id}`, data)
+}
+export function deleteGoodsSkusCard(id) {
+    return axios.post(`/admin/goods_skus_card/${id}/delete`)
 }

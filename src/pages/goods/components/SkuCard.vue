@@ -1,12 +1,13 @@
 <script setup>
 import SkuCardItem from './SkuCardItem.vue';
 import {
-    sku_card_list,addSkuCardEvent,btnLoading,handleUpdate
+    sku_card_list, addSkuCardEvent, btnLoading, handleUpdate, handleDelete
 } from "@/composables/useSku.js"
 </script>
 <template>
     <el-form-item label="规格选项">
-        <el-card shadow="never" class="w-full mb-3" v-for="(item,index) in sku_card_list" :key="item.id" v-loading="item.loading">
+        <el-card shadow="never" class="w-full mb-3" v-for="(item,index) in sku_card_list" :key="item.id"
+            v-loading="item.loading">
             <template #header>
                 <div class="flex items-center">
                     <el-input v-model="item.text" placeholder="规格名称" style="width:200px;" @change="handleUpdate(item)">
@@ -20,9 +21,15 @@ import {
                     <el-button size="small" @click=""><el-icon>
                             <Bottom />
                         </el-icon></el-button>
-                    <el-button size="small" @click=""><el-icon>
-                            <Delete />
-                        </el-icon></el-button>
+                    <el-popconfirm title="是否要删除该规格？" confirmButtonText="确认" cancelButtonText="取消"
+                        @confirm="handleDelete(item)">
+                        <template #reference>
+                            <el-button size="small" @click=""><el-icon>
+                                    <Delete />
+                                </el-icon></el-button>
+                        </template>
+                    </el-popconfirm>
+
                     <div></div>
                 </div>
             </template>

@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import {
-    createGoodsSkusCard,updateGoodsSkusCard
+    createGoodsSkusCard, updateGoodsSkusCard,
+    deleteGoodsSkusCard
 } from "@/api/goods.js"
 // 当前商品ID,默认为0
 export const goodsId = ref(0)
@@ -62,6 +63,18 @@ export function handleUpdate(item) {
         })
         .finally(() => {
             item.loading = false
+        })
+}
+// 删除规格选项
+export function handleDelete(item) {
+    item.loading = true
+    deleteGoodsSkusCard(item.id)
+        .then(res => {
+            // 查每个对象的ID
+            const i = sku_card_list.value.findIndex(o => o.id == item.id)
+            if (i != -1) {
+                sku_card_list.value.splice(i, 1)
+            }
         })
 }
 // 初始化规格的值
