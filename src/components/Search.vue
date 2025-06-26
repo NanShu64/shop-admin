@@ -8,7 +8,7 @@ const hasShowSearch = ref(!!slots.show)
 defineEmits(["search", "reset"])
 </script>
 <template>
-    <el-form :model="searchForm" label-width="80px" class="mb-3" size="small">
+    <el-form :model="model" label-width="80px" class="mb-3" size="small">
         <el-row :gutter="20">
             <slot />
             <template v-if="showSearch">
