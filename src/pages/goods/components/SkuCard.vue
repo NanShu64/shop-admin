@@ -1,7 +1,7 @@
 <script setup>
 import SkuCardItem from './SkuCardItem.vue';
 import {
-    sku_card_list, addSkuCardEvent, btnLoading, handleUpdate, handleDelete
+    sku_card_list, addSkuCardEvent, btnLoading, handleUpdate, handleDelete, sortCard
 } from "@/composables/useSku.js"
 </script>
 <template>
@@ -15,10 +15,12 @@ import {
                                 <more />
                             </el-icon></template>
                     </el-input>
-                    <el-button class="ml-auto" size="small" @click=""><el-icon>
+                    <el-button class="ml-auto" size="small" @click="sortCard('up',index)"
+                        :disabled="index == 0"><el-icon>
                             <Top />
                         </el-icon></el-button>
-                    <el-button size="small" @click=""><el-icon>
+                    <el-button size="small" @click="sortCard('down',index)"
+                        :disabled="index === (sku_card_list.length - 1)"><el-icon>
                             <Bottom />
                         </el-icon></el-button>
                     <el-popconfirm title="是否要删除该规格？" confirmButtonText="确认" cancelButtonText="取消"

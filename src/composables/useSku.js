@@ -3,6 +3,7 @@ import {
     createGoodsSkusCard, updateGoodsSkusCard,
     deleteGoodsSkusCard
 } from "@/api/goods.js"
+import { useArrayMoveUp, useArrayMoveDown } from './util';
 // 当前商品ID,默认为0
 export const goodsId = ref(0)
 // 规格选项列表
@@ -76,6 +77,15 @@ export function handleDelete(item) {
                 sku_card_list.value.splice(i, 1)
             }
         })
+}
+// 排序规格选项
+export function sortCard(action, index) {
+    if (action == "up") {
+        //
+        useArrayMoveUp(sku_card_list.value, index)
+    } else {
+        useArrayMoveDown(sku_card_list.value, index)
+    }
 }
 // 初始化规格的值
 export function initSkusCardItem(id) {

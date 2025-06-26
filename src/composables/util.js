@@ -1,5 +1,4 @@
-import { ElNotification } from 'element-plus'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
 import nProgress from 'nprogress'
 
 //消息提示
@@ -33,16 +32,16 @@ export function hideFullLoading() {
     nProgress.done()
 }
 //弹出输入框
-export function showPrompt(tip,value="") {
+export function showPrompt(tip, value = "") {
     return ElMessageBox.prompt('tip', '', {
         confirmButtonText: '确认',
         cancelButtonText: '取消',
-        inputValue:value
+        inputValue: value
     })
 }
 
 //将query对象转成url需要传递的参数，然后拼接
-export function queryParams(query){
+export function queryParams(query) {
     let q = []
     for (const key in query) {
         if (query[key]) {
@@ -52,4 +51,19 @@ export function queryParams(query){
     let r = q.join("&")
     r = r ? ("?" + r) : ""
     return r
+}
+// 上移
+export function useArrayMoveUp(arr, index) {
+    swapArray(arr, index, index - 1)
+}
+
+// 下移
+export function useArrayMoveDown(arr, index) {
+    swapArray(arr, index, index + 1)
+}
+// 调换数组索引位置
+function swapArray(arr, index1, index2) {
+    // [1,2,3,4],[2,1,3,4]
+    arr[index1] = arr.splice(index2, 1, arr[index1])[0]
+    return arr
 }
