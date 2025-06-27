@@ -1,7 +1,7 @@
 import { ref, nextTick } from 'vue';
 import {
     createGoodsSkusCard, updateGoodsSkusCard,
-    deleteGoodsSkusCard, sortGoodsSkusCard, createGoodsSkusCardValue,updateGoodsSkusCardValue
+    deleteGoodsSkusCard, sortGoodsSkusCard, createGoodsSkusCardValue, updateGoodsSkusCardValue, deleteGoodsSkusCardValue
 } from "@/api/goods.js"
 import { useArrayMoveUp, useArrayMoveDown } from './util';
 // 当前商品ID,默认为0
@@ -111,14 +111,24 @@ export function initSkusCardItem(id) {
 
     const loading = ref(false)
     const inputValue = ref('')
-    const dynamicTags = ref(['Tag 1', 'Tag 2', 'Tag 3'])
     // 是否显示input输入框
     const inputVisible = ref(false)
     const InputRef = ref()
     // 删除
     const handleClose = (tag) => {
         loading.value = true
-        dynamicTags.value.splice(dynamicTags.value.indexOf(tag), 1)
+        deleteGoodsSkusCardValue(tag.id)
+            .then(res => {
+                //拿到数组查索引，拿到每个对象id和当前对象的id做对比
+                let i = item.goodsSkusCardValue.findIndex(o => o.id === tag.id)
+                //判断索引是否存在
+                if (i != -1) {
+                    item.goodsSkusCardValue.splice(i, 1)
+                }
+            })
+            .finally(() => {
+                loading.value = false
+            })
     }
     // 显示input输入框
     const showInput = () => {
@@ -178,6 +188,7 @@ export function initSkusCardItem(id) {
                 loading.value = false
             })
     }
+
     // 对象的形式返回
     return {
         item,
