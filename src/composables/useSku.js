@@ -1,7 +1,13 @@
 import { ref, nextTick } from 'vue';
 import {
-    createGoodsSkusCard, updateGoodsSkusCard,
-    deleteGoodsSkusCard, sortGoodsSkusCard, createGoodsSkusCardValue, updateGoodsSkusCardValue, deleteGoodsSkusCardValue
+    createGoodsSkusCard,
+    updateGoodsSkusCard,
+    deleteGoodsSkusCard,
+    sortGoodsSkusCard,
+    createGoodsSkusCardValue,
+    updateGoodsSkusCardValue,
+    deleteGoodsSkusCardValue,
+    chooseAndSetGoodsSkusCard
 } from "@/api/goods.js"
 import { useArrayMoveUp, useArrayMoveDown } from './util';
 // 当前商品ID,默认为0
@@ -104,6 +110,25 @@ export function sortCard(action, index) {
             bodyLoading.value = false
         })
 }
+// 选择设置规格
+export function handleChooseSetGoodsSkusCard(id, data) {
+    // 拿到sku_card_list.value调用find方法，拿到每个对象
+    let item = sku_card_list.value.find(o => o.id == id)
+    item.loading = true
+    chooseAndSetGoodsSkusCard(id, data)
+        .then(res => {
+            console.log(res);
+            // 修改name值
+            item.name = item.text = res.goods_skus_card.name
+            item.goodsSkusCardValue = res.goods_skus_card_value.map(o => {
+                o.text = o.value || "属性值"
+                return o
+            })
+        })
+        .finally(() => {
+            item.loading = false
+        })
+}
 // 初始化规格的值
 export function initSkusCardItem(id) {
     // 查询o的id是否一致
@@ -199,6 +224,7 @@ export function initSkusCardItem(id) {
         showInput,
         handleInputConfirm,
         loading,
-        handleChange
+        handleChange,
+        handleChooseSetGoodsSkusCard
     }
 }
