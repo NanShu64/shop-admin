@@ -41,3 +41,15 @@ export function updateGoodsSkusCard(id, data) {
 export function deleteGoodsSkusCard(id) {
     return axios.post(`/admin/goods_skus_card/${id}/delete`)
 }
+// 排序
+export function sortGoodsSkusCard(data) {
+    return axios.post(`/admin/goods_skus_card/sort`, data)
+}
+// 添加规格选项
+export function createGoodsSkusCardValue(data) {
+    return axios.post(`/admin/goods_skus_card_value`, data)
+}
+// 修改规格选项
+export function updateGoodsSkusCardValue(id,data) {
+    return axios.post(`/admin/goods_skus_card_value/${id}`, data)
+}

@@ -1,7 +1,7 @@
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 import {
     createGoodsSkusCard, updateGoodsSkusCard,
-    deleteGoodsSkusCard
+    deleteGoodsSkusCard, sortGoodsSkusCard, createGoodsSkusCardValue,updateGoodsSkusCardValue
 } from "@/api/goods.js"
 import { useArrayMoveUp, useArrayMoveDown } from './util';
 // 当前商品ID,默认为0
@@ -79,20 +79,115 @@ export function handleDelete(item) {
         })
 }
 // 排序规格选项
+export const bodyLoading = ref(false)
 export function sortCard(action, index) {
-    if (action == "up") {
-        //
-        useArrayMoveUp(sku_card_list.value, index)
-    } else {
-        useArrayMoveDown(sku_card_list.value, index)
-    }
+    //用一个变量来接收，转字符串再转回来
+    let oList = JSON.parse(JSON.stringify(sku_card_list.value))
+    // 用func来接收并判断
+    let func = action == "up" ? useArrayMoveUp : useArrayMoveDown
+    func(oList, index)
+    // o接收对象，i接收
+    let sortData = oList.map((o, i) => {
+        return {
+            id: o.id,
+            order: i + 1
+        }
+    })
+    bodyLoading.value = true
+    sortGoodsSkusCard({
+        sortdata: sortData
+    })
+        .then(res => {
+            func(sku_card_list.value, index)
+        })
+        .finally(() => {
+            bodyLoading.value = false
+        })
 }
 // 初始化规格的值
 export function initSkusCardItem(id) {
     // 查询o的id是否一致
     const item = sku_card_list.value.find(o => o.id == id)
+
+    const loading = ref(false)
+    const inputValue = ref('')
+    const dynamicTags = ref(['Tag 1', 'Tag 2', 'Tag 3'])
+    // 是否显示input输入框
+    const inputVisible = ref(false)
+    const InputRef = ref()
+    // 删除
+    const handleClose = (tag) => {
+        loading.value = true
+        dynamicTags.value.splice(dynamicTags.value.indexOf(tag), 1)
+    }
+    // 显示input输入框
+    const showInput = () => {
+        inputVisible.value = true
+        nextTick(() => {
+            InputRef.value.input.focus()
+        })
+    }
+    // 提交方法 
+    const handleInputConfirm = () => {
+        if (!inputValue.value) {
+            // 隐藏抽屉
+            inputVisible.value = false
+            return
+        }
+        loading.value = true
+        //请求方法
+        createGoodsSkusCardValue({
+            goods_skus_card_id: id,
+            // 当前规格选项的名称
+            name: item.name,
+            // 排序
+            order: 50,
+            // 规格选项名称
+            value: inputValue.value
+        }).then(res => {
+
+            item.goodsSkusCardValue.push({
+                ...res,
+                text: res.value
+            })
+        })
+            .finally(() => {
+                //隐藏抽屉并且清空输入框
+                inputVisible.value = false
+                inputValue.value = ''
+                loading.value = false
+            })
+
+    }
+    //修改
+    const handleChange = (value, tag) => {
+        loading.value = true
+        updateGoodsSkusCardValue(tag.id, {
+            "goods_skus_card_id": id,
+            "name": item.name,
+            "order": tag.order,
+            "value": value
+        })
+            .then(res => [
+                tag.value = value
+            ])
+            .catch(err => {
+                tag.text = tag.value
+            })
+            .finally(() => {
+                loading.value = false
+            })
+    }
     // 对象的形式返回
     return {
-        item
+        item,
+        inputValue,
+        inputVisible,
+        InputRef,
+        handleClose,
+        showInput,
+        handleInputConfirm,
+        loading,
+        handleChange
     }
 }

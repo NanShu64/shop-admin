@@ -1,11 +1,11 @@
 <script setup>
 import SkuCardItem from './SkuCardItem.vue';
 import {
-    sku_card_list, addSkuCardEvent, btnLoading, handleUpdate, handleDelete, sortCard
+    sku_card_list, addSkuCardEvent, btnLoading, handleUpdate, handleDelete, sortCard, bodyLoading
 } from "@/composables/useSku.js"
 </script>
 <template>
-    <el-form-item label="规格选项">
+    <el-form-item label="规格选项" v-loading="bodyLoading">
         <el-card shadow="never" class="w-full mb-3" v-for="(item,index) in sku_card_list" :key="item.id"
             v-loading="item.loading">
             <template #header>
