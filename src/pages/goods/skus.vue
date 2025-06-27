@@ -2,12 +2,14 @@
 import { ref, reactive } from 'vue';
 import FormDrawer from '@/components/FormDrawer.vue';
 import SkuCard from './components/SkuCard.vue';
+import SkuTable from '@/pages/goods/components/SkuTable.vue';
 import {
     readGoods,
     updateGoodsSkus
 } from "@/api/goods"
 import { toast } from "@/composables/util";
-import { goodsId,initSkuCardList} from '@/composables/useSku';
+import { goodsId, initSkuCardList, sku_list } from '@/composables/useSku.js';
+
 
 const formDrawerRef = ref(null)
 
@@ -52,8 +54,16 @@ const emit = defineEmits(["reloadData"])
 const submit = () => {
     // 弹框节点显示
     formDrawerRef.value.showLoading()
+
+    let data = {
+        sku_type: form.sku_type,
+        sku_value: form.sku_value
+    }
+    if (form.sku_type == 1) {
+        data.goodsSkus = sku_list.value
+    }
     //id和对象
-    updateGoodsSkus(goodsId.value, form)
+    updateGoodsSkus(goodsId.value, data)
         .then(res => {
             toast("通知", "设置商品规格成功", "success")
             // 关闭抽屉
@@ -109,6 +119,7 @@ defineExpose({
             </template>
             <template v-else>
                 <SkuCard />
+                <SkuTable />
             </template>
         </el-form>
     </FormDrawer>

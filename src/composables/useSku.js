@@ -1,4 +1,4 @@
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, computed } from 'vue';
 import {
     createGoodsSkusCard,
     updateGoodsSkusCard,
@@ -9,11 +9,18 @@ import {
     deleteGoodsSkusCardValue,
     chooseAndSetGoodsSkusCard
 } from "@/api/goods.js"
-import { useArrayMoveUp, useArrayMoveDown } from './util';
+import {
+    useArrayMoveUp,
+    useArrayMoveDown,
+    cartesianProductOf
+} from '@/composables/util';
 // 当前商品ID,默认为0
 export const goodsId = ref(0)
 // 规格选项列表
 export const sku_card_list = ref([])
+
+export const sku_list = ref([])
+
 
 // 初始化规格选项列表
 export function initSkuCardList(d) {
@@ -29,6 +36,9 @@ export function initSkuCardList(d) {
         })
         return item
     })
+    // 赋值
+    sku_list.value = d.goodsSkus
+    console.log(sku_list.value);
 }
 // 添加规格选项
 export const btnLoading = ref(false)
@@ -82,6 +92,7 @@ export function handleDelete(item) {
             if (i != -1) {
                 sku_card_list.value.splice(i, 1)
             }
+            getTableData()
         })
 }
 // 排序规格选项
@@ -105,6 +116,7 @@ export function sortCard(action, index) {
     })
         .then(res => {
             func(sku_card_list.value, index)
+            getTableData()
         })
         .finally(() => {
             bodyLoading.value = false
@@ -124,6 +136,7 @@ export function handleChooseSetGoodsSkusCard(id, data) {
                 o.text = o.value || "属性值"
                 return o
             })
+            getTableData()
         })
         .finally(() => {
             item.loading = false
@@ -150,6 +163,7 @@ export function initSkusCardItem(id) {
                 if (i != -1) {
                     item.goodsSkusCardValue.splice(i, 1)
                 }
+                getTableData()
             })
             .finally(() => {
                 loading.value = false
@@ -180,11 +194,11 @@ export function initSkusCardItem(id) {
             // 规格选项名称
             value: inputValue.value
         }).then(res => {
-
             item.goodsSkusCardValue.push({
                 ...res,
                 text: res.value
             })
+            getTableData()
         })
             .finally(() => {
                 //隐藏抽屉并且清空输入框
@@ -203,9 +217,10 @@ export function initSkusCardItem(id) {
             "order": tag.order,
             "value": value
         })
-            .then(res => [
+            .then(res => {
                 tag.value = value
-            ])
+                getTableData()
+            })
             .catch(err => {
                 tag.text = tag.value
             })
@@ -225,6 +240,120 @@ export function initSkusCardItem(id) {
         handleInputConfirm,
         loading,
         handleChange,
-        handleChooseSetGoodsSkusCard
     }
+}
+
+// 初始化表格，主要处理表头相关数据
+export function initSkuTable() {
+    // 拿到数组过滤，保证有值
+    const skuLabels = computed(() => sku_card_list.value.filter(v => v.goodsSkusCardValue.length > 0))
+
+    // 获取表头
+    const tableThs = computed(() => {
+        let length = skuLabels.value.length
+        // 数组里面是每一个对象
+        return [{
+            name: "商品规格",
+            colspan: length,
+            width: "",
+            rowspan: length > 0 ? 1 : 2
+        }, {
+            name: "销售价",
+            width: "100",
+            rowspan: 2
+        }, {
+            name: "市场价",
+            width: "100",
+            rowspan: 2
+        }, {
+            name: "成本价",
+            width: "100",
+            rowspan: 2
+        }, {
+            name: "库存",
+            width: "100",
+            rowspan: 2
+        }, {
+            name: "体积",
+            width: "100",
+            rowspan: 2
+        }, {
+            name: "重量",
+            width: "100",
+            rowspan: 2
+        }, {
+            name: "编码",
+            width: "100",
+            rowspan: 2
+        }]
+    })
+
+    return {
+        skuLabels,
+        tableThs,
+        sku_list
+    }
+}
+
+// 获取规格表格数据
+function getTableData() {
+    setTimeout(() => {
+        // 如果没有规格选项，就返回空数组
+        if (sku_card_list.value.length === 0) return []
+
+        let list = []
+        sku_card_list.value.forEach(o => {
+            if (o.goodsSkusCardValue && o.goodsSkusCardValue.length > 0) {
+                // 判断存在且长度>0
+                list.push(o.goodsSkusCardValue)
+            }
+        })
+
+        if (list.length == 0) {
+            return []
+        }
+        // 调用cartesianProductOf方法排列组合
+        let arr = cartesianProductOf(...list)
+
+        // 获取之前的规格列表，将规格ID排序之后转化成字符串
+        let beforeSkuList = JSON.parse(JSON.stringify(sku_list.value)).map(o => {
+            // 判断数组
+            if (!Array.isArray(o.skus)) {
+                // 拿到对象的key值调用map方法再把对象里面指定的key值返回回去
+                o.skus = Object.keys(o.skus).map(k => o.skus[k])
+            }
+            // 排序拼接
+            o.skusId = o.skus.sort((a, b) => a.id - b.id).map(s => s.id).join(",")
+            return o
+        })
+        // 整体赋值
+        sku_list.value = []
+        sku_list.value = arr.map(skus => {
+            // 排序拼接比对 新老skus ——(skus), beforeSkuList ，转字符串，
+            let o = getBeforeSkuItem(JSON.parse(JSON.stringify(skus)), beforeSkuList)
+            return {
+                code: o?.code || "",
+                cprice: o?.cprice || "0.00",
+                goods_id: goodsId.value,
+                image: o?.image || "",
+                oprice: o?.oprice || "0.00",
+                pprice: o?.pprice || "0.00",
+                skus,
+                stock: o?.stock || 0,
+                volume: o?.volume || 0,
+                weight: o?.weight || 0,
+            }
+        })
+    }, 200)
+}
+// 比对
+function getBeforeSkuItem(skus, beforeSkuList) {
+    let skusId = skus.sort((a, b) => a.id - b.id).map(s => s.id).join(",")
+    return beforeSkuList.find(o => {
+        if (skus.length > o.skus.length) {
+            // 新id是否包含老id
+            return skusId.indexOf(o.skusId) != -1
+        }
+        return o.skusId.indexOf(skusId) != -1
+    })
 }

@@ -221,7 +221,9 @@ const handleSetGoodsSkus = (row) => skusRef.value.open(row)
                     <div v-if="searchForm.tab != 'delete'">
                         <el-button class="px-1" type="primary" size="small" text
                             @click="handleEdit(scope.row)">修改</el-button>
-                        <el-button class="px-1" type="primary" size="small" text :loading="scope.row.skusLoading"
+                        <el-button class="px-1"
+                            :type=" (scope.row.sku_type == 0 && !scope.row.sku_value) || (scope.row.sku_type == 1 && !scope.row.goods_skus.length) ? 'danger' : 'primary'"
+                            size="small" text :loading="scope.row.skusLoading"
                             @click="handleSetGoodsSkus(scope.row)">商品规格</el-button>
                         <el-button class="px-1" :type="scope.row.goods_banner.length == 0 ? 'danger' : 'primary'"
                             size="small" text @click="handleSetGoodsBanners(scope.row)"
