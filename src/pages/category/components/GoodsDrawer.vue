@@ -1,10 +1,12 @@
 <script setup>
 import { ref } from "vue"
 import FormDrawer from '@/components/FormDrawer.vue';
+import ChooseGoods from "@/components/ChooseGoods.vue";
 import { toast } from "@/composables/util"
 import {
     getCategoryGoods,
-    deleteCategoryGoods
+    deleteCategoryGoods,
+    connectCategoryGoods
 } from "@/api/category.js"
 
 // 创建响应式引用（ref）
@@ -40,13 +42,33 @@ const handleDelete = (row) => {
         getData()
     })
 }
+// 创建响应式引用（ref）
+const ChooseGoodsRef = ref(null)
+
+const handleConnect = () => {
+    // 打开弹框
+    ChooseGoodsRef.value.open((goods_ids) => {
+        formDrawerRef.value.showLoading()
+        connectCategoryGoods({
+            category_id: category_id.value,
+            goods_ids
+        }).then(res => {
+            getData()
+            toast("通知", "关联成功", "success")
+        })
+            .finally(() => {
+                formDrawerRef.value.hideLoading()
+            })
+    })
+}
+
 // 导出，父组件调用open
 defineExpose({
     open
 })
 </script>
 <template>
-    <FormDrawer ref="formDrawerRef" title="推荐商品">
+    <FormDrawer ref="formDrawerRef" title="推荐商品" @submit="handleConnect" confirmText="关联">
         <el-table :data="tableData" border stripe style="width:100%;">
             <el-table-column prop="goods_id" label="ID" width="60" />
 
@@ -70,6 +92,8 @@ defineExpose({
             </el-table-column>
 
         </el-table>
-
     </FormDrawer>
+
+    <ChooseGoods ref="ChooseGoodsRef" />
 </template>
+<style scoped></style>
