@@ -16,8 +16,23 @@ export function updateGoodsStatus(ids, status) {
 export function createGoods(data) {
     return axios.post("/admin/goods", data)
 }
-export function deleteGoods(id) {
-    return axios.post(`/admin/goods/${id}/delete`)
+
+export function deleteGoods(ids) {
+    return axios.post(`/admin/goods/delete_all`, {
+        ids
+    })
+}
+//批量恢复
+export function restoreGoods(ids) {
+    return axios.post(`/admin/goods/restore`, {
+        ids
+    })
+}
+// 彻底删除
+export function destroyGoods(ids) {
+    return axios.post(`/admin/goods/destroy`, {
+        ids
+    })
 }
 export function updateGoods(id, data) {
     return axios.post(`/admin/goods/${id}`, data)

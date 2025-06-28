@@ -90,7 +90,7 @@ export function useInitTable(opt = {}) {
     const multipleTableRef = ref(null)
     const handleMultiDelete = () => {
         loading.value = true
-        opt.delete(multiSelectionIds.value,status)
+        opt.delete(multiSelectionIds.value)
             .then(res => {
                 toast("通知", "批量删除成功", "success")
                 //清空选中,防止报错
@@ -133,7 +133,8 @@ export function useInitTable(opt = {}) {
         handleSelectionChange,
         multipleTableRef,
         handleMultiDelete,
-        handleMultiStatusChange 
+        handleMultiStatusChange,
+        multiSelectionIds
     }
 }
 

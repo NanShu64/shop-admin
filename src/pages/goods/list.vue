@@ -6,7 +6,8 @@ import {
     deleteGoods,
     updateGoods,
     updateGoodsStatus,
-    // updateGoodsSkus
+    restoreGoods,
+    destroyGoods
 } from "@/api/goods.js"
 import { getCategoryList, } from "@/api/category.js"
 import FormDrawer from '@/components/FormDrawer.vue';
@@ -18,7 +19,9 @@ import banners from './banners.vue';
 import content from './content.vue';
 import skus from './skus.vue';
 import { useInitTable, useInitForm } from '@/composables/useCommon.js'
-
+import {
+    toast
+} from "@/composables/util"
 const {
     searchForm,
     resetSearchForm,
@@ -29,11 +32,11 @@ const {
     limit,
     getData,
     handleDelete,
-    handleStatusChange,
     multipleTableRef,
     handleSelectionChange,
     handleMultiDelete,
-    handleMultiStatusChange
+    handleMultiStatusChange,
+    multiSelectionIds
 } = useInitTable({
     searchForm: {
         title: "",
@@ -133,6 +136,26 @@ const handleSetGoodsContent = (row) => contentRef.value.open(row)
 // 设置商品规格相关方法
 const skusRef = ref(null)
 const handleSetGoodsSkus = (row) => skusRef.value.open(row)
+
+
+const handleRestoreGoods = ()=> useMultiAction(restoreGoods,"恢复")
+const handleDestroyGoods = () => useMultiAction(destroyGoods, "彻底删除")
+//批量恢复和彻底删除
+function useMultiAction(func, msg) {
+    loading.value = true
+    func(multiSelectionIds.value)
+        .then(res => {
+            toast("通知",msg + "成功", "success")
+            // 清空选中
+            if (multipleTableRef.value) {
+                multipleTableRef.value.clearSelection()
+            }
+            getData()
+        })
+        .finally(() => {
+            loading.value = false
+        })
+}
 </script>
 <template>
     <el-tabs v-model="searchForm.tab" @tab-change="getData">
@@ -155,8 +178,16 @@ const handleSetGoodsSkus = (row) => skusRef.value.open(row)
         </Search>
 
         <!-- 新增|刷新 -->
-        <ListHeader layout="create,refresh,delete" @create="handleCreate" @refresh="getData"
-            @delete="handleMultiDelete">
+        <ListHeader layout="create,refresh" @create="handleCreate" @refresh="getData">
+            <el-button type="danger" size="small" @click="handleMultiDelete"
+                v-if="searchForm.tab != 'delete'">批量删除</el-button>
+            <el-button type="warning" size="small" @click="handleRestoreGoods" v-else>恢复商品</el-button>
+            <el-popconfirm v-if="searchForm.tab == 'delete'" title="是否要彻底删除该商品？" confirmButtonText="确认"
+                cancelButtonText="取消" @confirm="handleDestroyGoods">
+                <template #reference>
+                    <el-button type="danger" size="small">彻底删除</el-button>
+                </template>
+            </el-popconfirm>
             <el-button size="small" @click="handleMultiStatusChange(1) "
                 v-if="searchForm.tab=='all' ||searchForm.tab=='off'">上架</el-button>
             <el-button size="small" @click="handleMultiStatusChange(0) "
@@ -232,7 +263,7 @@ const handleSetGoodsSkus = (row) => skusRef.value.open(row)
                             @click="handleSetGoodsContent(scope.row)"
                             :loading="scope.row.contentLoading">商品详情</el-button>
                         <el-popconfirm title="是否要删除该商品？" confirmButtonText="确认" cancelButtonText="取消"
-                            @confirm="handleDelete(scope.row.id)">
+                            @confirm="handleDelete([scope.row.id])">
                             <template #reference>
                                 <el-button class="px-1" type="primary" size="small" text>删除</el-button>
                             </template>
