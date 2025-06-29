@@ -3,6 +3,7 @@ import { ref } from "vue"
 import ImageAside from "@/components/ImageAside.vue"
 import ImageMain from "@/components/ImageMain.vue"
 import { toast } from "@/composables/util"
+
 // 窗口默认关闭
 const dialogVisible = ref(false)
 //定义一个回调传值
@@ -79,7 +80,7 @@ defineExpose({
             <div class="relative mx-1 mb-2 w-[100px] h-[100px]" v-for="(url,index) in modelValue" :key="index">
                 <el-icon class="absolute right-[5px] top-[5px]  cursor-pointer bg-light-50 rounded" style="z-index:10;"
                     @click="removeImage(url)">
-                    <Circleclose />
+                    <CircleClose />
                 </el-icon>
                 <el-image :src="url" fit="cover" class="w-[100px] h-[100px] rounded border mr-2">
                 </el-image>

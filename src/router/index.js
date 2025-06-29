@@ -18,6 +18,7 @@ import ManagerList from '@/pages/manager/list.vue'
 import AccessList from '@/pages/access/list.vue'
 import RoleList from '@/pages/role/list.vue'
 import SkusList from '@/pages/skus/list.vue'
+import LevelList from '@/pages/level/list.vue'
 //默认路由所有用户共享
 const routes = [{
     path: "/", // http://localhost:5173
@@ -140,12 +141,20 @@ const asyncRoutes = [{
         title: "角色管理"
     }
 }
-, {
+    , {
     path: "/skus/list",
     name: "/skus/list",
     component: SkusList,
     meta: {
         title: "规格管理"
+    }
+}
+    , {
+    path: "/level/list",
+    name: "/level/list",
+    component: LevelList,
+    meta: {
+        title: "会员等级"
     }
 }
 ]
@@ -156,7 +165,7 @@ export const router = createRouter({
 })
 
 //动态添加路由的方法
-export function addRoutes(menus){
+export function addRoutes(menus) {
     //是否有新的路由
     let hasNewRoutes = false
     const findAndAddRoutesByMenus = (arr) => {
