@@ -10,7 +10,7 @@ import {
 
 import { useInitTable } from '@/composables/useCommon.js'
 import ExportExcel from "./ExportExcel.vue"
-
+import InfoModal from "./InfoModal.vue"
 const {
     handleSelectionChange,
     multipleTableRef,
@@ -78,6 +78,28 @@ const tabbars = [{
 
 const ExportExcelRef = ref(null)
 const handleExportExcel = () => ExportExcelRef.value.open()
+
+
+const InfoModalRef = ref(null)
+const info = ref(null)
+const openInfoModal = (row) => {
+    row.order_items = row.order_items.map(o => {
+        if (o.skus_type == 1 && o.goods_skus) {
+            let s = []
+            // 遍历对象
+            for (const k in o.goods_skus.skus) {
+                // 每个对象的value值，push到一个数组中
+                s.push(o.goods_skus.skus[k].value)
+            }
+            o.sku = s.join(",")
+        }
+        return o
+    })
+    // info赋值当前对象
+    info.value = row
+    // 调用open方法
+    InfoModalRef.value.open()
+}
 </script>
 <template>
     <div>
@@ -177,8 +199,9 @@ const handleExportExcel = () => ExportExcelRef.value.open()
                     </template>
                 </el-table-column>
                 <el-table-column label="操作" align="center">
-                    <template #default="scope">
-                        <el-button class="px-1" type="primary" size="small" text>订单详情</el-button>
+                    <template #default="{ row }">
+                        <el-button class="px-1" type="primary" size="small" text
+                            @click="openInfoModal(row)">订单详情</el-button>
                         <el-button v-if="searchForm.tab === 'noship'" class="px-1" type="primary" size="small"
                             text>订单发货</el-button>
                         <el-button v-if="searchForm.tab === 'refunding'" class="px-1" type="primary" size="small"
@@ -195,5 +218,7 @@ const handleExportExcel = () => ExportExcelRef.value.open()
             </div>
         </el-card>
         <ExportExcel :tabs="tabbars" ref="ExportExcelRef" />
+
+        <InfoModal ref="InfoModalRef" :info="info" />
     </div>
 </template>
