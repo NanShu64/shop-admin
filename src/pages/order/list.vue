@@ -3,14 +3,25 @@ import { ref } from "vue"
 import ListHeader from "@/components/ListHeader.vue";
 import Search from "@/components/Search.vue";
 import SearchItem from "@/components/SearchItem.vue";
-import {
-    getOrderList,
-    deleteOrder,
-} from "@/api/order"
-
 import { useInitTable } from '@/composables/useCommon.js'
 import ExportExcel from "./ExportExcel.vue"
 import InfoModal from "./InfoModal.vue"
+
+
+import {
+    getOrderList,
+    deleteOrder,
+    refundOrder
+} from "@/api/order"
+
+
+import {
+    showModal,
+    showPrompt,
+    toast
+} from "@/composables/util"
+
+
 const {
     handleSelectionChange,
     multipleTableRef,
@@ -99,6 +110,22 @@ const openInfoModal = (row) => {
     info.value = row
     // 调用open方法
     InfoModalRef.value.open()
+}
+
+// 退款处理
+const handleRefund = (id, agree) => {
+    (agree ? showModal("是否要同意该订单退款?") : showPrompt("请输入拒绝的理由"))
+        .then(({ value }) => {
+            let data = { agree }
+            if (!agree) {
+                data.disagree_reason = value
+            }
+            refundOrder(id, data)
+                .then(res => {
+                    getData()
+                    toast("通知", "操作成功", "success")
+                })
+        })
 }
 </script>
 <template>
@@ -204,10 +231,10 @@ const openInfoModal = (row) => {
                             @click="openInfoModal(row)">订单详情</el-button>
                         <el-button v-if="searchForm.tab === 'noship'" class="px-1" type="primary" size="small"
                             text>订单发货</el-button>
-                        <el-button v-if="searchForm.tab === 'refunding'" class="px-1" type="primary" size="small"
-                            text>同意退款</el-button>
-                        <el-button v-if="searchForm.tab === 'refunding'" class="px-1" type="primary" size="small"
-                            text>拒绝退款</el-button>
+                        <el-button v-if="searchForm.tab === 'refunding'" class="px-1" type="primary" size="small" text
+                            @click="handleRefund(row.id,1)">同意退款</el-button>
+                        <el-button v-if="searchForm.tab === 'refunding'" class="px-1" type="primary" size="small" text
+                            @click="handleRefund(row.id,0)">拒绝退款</el-button>
                     </template>
                 </el-table-column>
             </el-table>
