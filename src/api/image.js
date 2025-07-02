@@ -9,4 +9,4 @@ export function updateImage(id, name) {
 export function deleteImage(ids) {
     return axios.post(`/admin/image/delete_all`, { ids })
 }
-export const updateImageAction = "/api/admin/image/upload"
+export const updateImageAction = import.meta.env.VITE_APP_BASE_API+"/admin/image/upload"
